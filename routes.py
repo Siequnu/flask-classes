@@ -151,7 +151,8 @@ def open_attendance(lesson_id):
 							   title='Class attendance',
 							   turma = turma,
 							   attendance_code_object = attendance_code_object,
-							   url = url)
+							   url = url,
+							   greeting = app.main.models.get_greeting())
 	abort (403)
 	
 	
@@ -219,7 +220,9 @@ def register_attendance(attendance_code):
 @bp.route("/attendance/register/success")
 @login_required
 def attendance_success():
-	return render_template('classes/lesson_attendance_completed.html', title='Class attendance')
+	return render_template('classes/lesson_attendance_completed.html',
+						   title='Class attendance',
+						   greeting = app.main.models.get_greeting())
 
 
 
