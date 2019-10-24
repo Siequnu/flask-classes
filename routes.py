@@ -13,6 +13,7 @@ from app import db
 import datetime, uuid
 
 import flask_excel as excel
+import pusher
 
 @bp.route("/create", methods=['GET', 'POST'])
 @login_required
@@ -152,7 +153,8 @@ def open_attendance(lesson_id):
 							   turma = turma,
 							   attendance_code_object = attendance_code_object,
 							   url = url,
-							   greeting = app.main.models.get_greeting())
+							   greeting = app.main.models.get_greeting(),
+							   )
 	abort (403)
 	
 	
@@ -203,6 +205,14 @@ def view_attendance(lesson_id):
 @login_required
 def register_attendance(attendance_code):
 	try:
+		pusher_client = pusher.Pusher(
+			app_id = current_app.config['APP_ID'],
+			key = current_app.config['KEY'],
+			secret = current_app.config['SECRET'],
+			cluster = current_app.config['CLUSTER'],
+			ssl = current_app.config['SSL']
+		)
+		
 		attendance_code_object = AttendanceCode.query.filter(AttendanceCode.code == attendance_code).first()
 		#!# Check if user has already signed up for this lesson
 		
@@ -211,6 +221,11 @@ def register_attendance(attendance_code):
 									   timestamp = datetime.datetime.now())
 		db.session.add(attendance)
 		db.session.commit()
+		
+		data = {"username": current_user.username}
+		
+		pusher_client.trigger('attendance', 'new-record', {'data': data })
+		
 	except:
 		flash ('Your QR code was invalid', 'info')
 		return redirect (url_for('main.index'))
