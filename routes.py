@@ -185,14 +185,19 @@ def close_attendance(attendance_code_id):
 	
 @bp.route("/attendance/view/<lesson_id>/")
 @login_required
-def view_attendance(lesson_id):
+def view_lesson_attendance(lesson_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		try:
 			lesson = Lesson.query.get(lesson_id)
 			turma = Turma.query.get(lesson.turma_id)
-			attendance_list = db.session.query(LessonAttendance, User).join(
-				LessonAttendance, LessonAttendance.user_id == User.id).filter(
-				LessonAttendance.lesson_id == lesson_id).all()
+			
+			class_enrollment = app.classes.models.get_class_enrollment_from_class_id (lesson.turma_id)
+			attendance_array = []
+			for enrollment, turma, user in class_enrollment:
+				user_dict = user.__dict__
+				user_dict['attendance'] = app.classes.models.get_attendance_status (lesson_id, user.id)
+				attendance_array.append(user_dict)
+			
 		except:
 			flash ('Could not locate the lesson you wanted', 'error')
 			return redirect (url_for('classes.class_admin'))
@@ -201,7 +206,7 @@ def view_attendance(lesson_id):
 							   title='Lesson attendance',
 							   turma = turma,
 							   lesson = lesson,
-							   attendance_list = attendance_list)
+							   attendance_array = attendance_array)
 	abort (403)
 	
 	
@@ -249,6 +254,63 @@ def register_attendance(attendance_code):
 	return redirect (url_for('classes.attendance_success'))
 
 
+@bp.route("/attendance/register/batch/<lesson_id>")
+@login_required
+def batch_register_lesson_as_attended(lesson_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		lesson = Lesson.query.get(lesson_id)
+	
+		class_enrollment = app.classes.models.get_class_enrollment_from_class_id (lesson.turma_id)
+		
+		for enrollment, turma, user in class_enrollment:
+			register_student_as_attending (user.id, lesson_id)
+		flash ('Marked entire class as attending', 'success')
+		
+		#!# Currnetly broken - need to move register student as attending to model
+		
+		return render_template('classes/lesson_attendance_completed.html',
+						   title='Class attendance',
+						   greeting = app.main.models.get_greeting())
+	abort (403)
+
+@bp.route("/attendance/present/<user_id>/<lesson_id>")
+@login_required
+def register_student_as_attending(user_id, lesson_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		try:
+			pusher_client = pusher.Pusher(
+				app_id= current_app.config['PUSHER_APP_ID'],
+				key = current_app.config['PUSHER_KEY'],
+				secret=current_app.config['PUSHER_SECRET'],
+				cluster=current_app.config['PUSHER_CLUSTER'],
+				ssl=current_app.config['PUSHER_SSL']
+			)
+			
+			#!# Check if user has already signed up for this lesson
+			if LessonAttendance.query.filter(
+					LessonAttendance.lesson_id == lesson_id).filter(
+					LessonAttendance.user_id == user_id).first() is not None:
+				
+				flash ('This student is already registered in this lesson.', 'info')
+				
+			else: # User not registered yet, sign 'em up.
+				attendance = LessonAttendance (user_id = user_id,
+										   lesson_id = lesson_id,
+										   timestamp = datetime.datetime.now())
+				db.session.add(attendance)
+				db.session.commit()
+				username = User.query.get(user_id).username
+				data = {"username": username}
+				pusher_client.trigger('attendance', 'new-record', {'data': data })
+			
+		except:
+			flash ('Could not register student as attending', 'warning')
+			return redirect (url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
+		flash ('Marked ' + username + ' as in attendance', 'success')
+		return redirect (url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
+	abort (403)
+
+
 @bp.route("/attendance/register/success")
 @login_required
 def attendance_success():
@@ -268,12 +330,28 @@ def remove_attendance(attendance_id):
 			db.session.delete(attendance)
 			db.session.commit
 			flash ('Student attendance removed', 'success')
-			return redirect (url_for('classes.view_attendance', lesson_id = lesson_id))
+			return redirect (url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
 		except:
 			flash ('Could not find the attendance record.', 'error')
 			return redirect (url_for('classes.class_admin'))
 	
 	abort (403)
+	
+	
+@bp.route("/attendance/record/")
+@bp.route("/attendance/record/<user_id>")
+@login_required
+def view_attendance_record(user_id = False):
+	if user_id: # Admin can override the current_user by submitting a user_id
+		attendance_record = app.classes.models.get_attendance_record(user_id)
+		user = User.query.get(user_id)
+	else:
+		attendance_record = app.classes.models.get_attendance_record(current_user.id)
+		user = User.query.get(current_user.id)
+	return render_template('classes/view_attendance_record.html',
+						   title='Attendance record',
+						   attendance_record = attendance_record,
+						   user = user)
 	
 	
 
@@ -295,7 +373,7 @@ def export_class_data(class_id):
 @login_required
 def manage_enrollment(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		class_enrollment = app.assignments.models.get_class_enrollment_from_class_id(class_id)
+		class_enrollment = app.classes.models.get_class_enrollment_from_class_id(class_id)
 		return render_template('classes/class_enrollment.html', title='Class enrollment', class_enrollment = class_enrollment)
 	abort (403)
 	
