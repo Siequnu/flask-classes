@@ -219,16 +219,21 @@ def register_attendance(attendance_code):
 		
 		attendance_code_object = AttendanceCode.query.filter(AttendanceCode.code == attendance_code).first()
 		#!# Check if user has already signed up for this lesson
-		
-		attendance = LessonAttendance (user_id = current_user.id,
+		if LessonAttendance.query.filter(
+				LessonAttendance.lesson_id == attendance_code_object.lesson_id).filter(
+				LessonAttendance.user_id == current_user.id).first() is not None:
+			
+			flash ('You have already registered your attendance.', 'info')
+			
+		else: # User not registered yet, sign 'em up.
+			attendance = LessonAttendance (user_id = current_user.id,
 									   lesson_id = attendance_code_object.lesson_id,
 									   timestamp = datetime.datetime.now())
-		db.session.add(attendance)
-		db.session.commit()
+			db.session.add(attendance)
+			db.session.commit()
 		
-		data = {"username": current_user.username}
-		
-		pusher_client.trigger('attendance', 'new-record', {'data': data })
+			data = {"username": current_user.username}
+			pusher_client.trigger('attendance', 'new-record', {'data': data })
 		
 	except:
 		flash ('Your QR code was invalid', 'info')
