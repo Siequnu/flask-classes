@@ -10,7 +10,7 @@ import app.models
 
 from app import db
 
-import datetime, uuid
+import datetime, uuid, random
 
 import flask_excel as excel
 import pusher
@@ -142,7 +142,10 @@ def open_attendance(lesson_id):
 			return redirect (url_for('classes.class_admin'))
 		
 		# Add new attendance code to the database
-		code = str(uuid.uuid4())
+		lines = open('eff_large_wordlist.txt').read().splitlines()
+		code = random.choice(lines)
+		code = code[6:]
+		
 		url = url_for ('classes.register_attendance', attendance_code = code, _external = True)
 		attendance_code_object = AttendanceCode (code = code, lesson_id = lesson_id)
 		db.session.add(attendance_code_object)
@@ -153,6 +156,7 @@ def open_attendance(lesson_id):
 							   turma = turma,
 							   attendance_code_object = attendance_code_object,
 							   url = url,
+							   code = code,
 							   greeting = app.main.models.get_greeting(),
 							   )
 	abort (403)
