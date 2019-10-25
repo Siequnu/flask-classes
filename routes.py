@@ -205,6 +205,14 @@ def view_attendance(lesson_id):
 	abort (403)
 	
 	
+@bp.route("/attendance/code/", methods = ['GET', 'POST'])
+@login_required
+def enter_attendance_code():
+	if request.values.get('attendance'):
+		return redirect(url_for('classes.register_attendance', attendance_code = request.values.get('attendance')))
+	greeting = app.main.models.get_greeting()
+	return render_template('classes/enter_attendance_code.html', greeting = greeting)
+	
 @bp.route("/attendance/register/<attendance_code>/")
 @login_required
 def register_attendance(attendance_code):
@@ -236,7 +244,7 @@ def register_attendance(attendance_code):
 			pusher_client.trigger('attendance', 'new-record', {'data': data })
 		
 	except:
-		flash ('Your QR code was invalid', 'info')
+		flash ('Your code was invalid', 'info')
 		return redirect (url_for('main.index'))
 	return redirect (url_for('classes.attendance_success'))
 
