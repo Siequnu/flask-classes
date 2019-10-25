@@ -206,11 +206,11 @@ def view_attendance(lesson_id):
 def register_attendance(attendance_code):
 	try:
 		pusher_client = pusher.Pusher(
-		app_id='886641',
-		key='a3d90d6c0e5cfca9fd70',
-		secret='0af51ea5b1f04e03b9f6',
-		cluster='ap3',
-		ssl=True
+			app_id= current_app.config['PUSHER_APP_ID'],
+			key = current_app.config['PUSHER_KEY'],
+			secret=current_app.config['PUSHER_SECRET'],
+			cluster=current_app.config['PUSHER_CLUSTER'],
+			ssl=current_app.config['PUSHER_SSL']
 		)
 		
 		attendance_code_object = AttendanceCode.query.filter(AttendanceCode.code == attendance_code).first()
