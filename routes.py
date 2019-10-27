@@ -353,7 +353,6 @@ def view_attendance_record(user_id = False):
 						   attendance_record = attendance_record,
 						   user = user)
 	
-	
 
 @bp.route("/export/<class_id>")
 @login_required
