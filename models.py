@@ -106,3 +106,8 @@ def download_absence_justification (absence_justification_id):
 								   as_attachment = True,
 								   attachment_filename = absence_justification.original_filename)
 
+def delete_absence_justification (absence_justification_id):
+	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+	db.session.delete(absence_justification)
+	db.session.commit()
+	
