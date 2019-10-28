@@ -372,7 +372,7 @@ def upload_absence_justification (lesson_id):
 @login_required
 def view_absence_justification (absence_justification_id):
 	#!# Need to delete any absence statements when deleting a user
-	
+	try:
 		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
 		user = User.query.get(absence_justification.user_id)
 		lesson = Lesson.query.get(absence_justification.lesson_id)
@@ -387,7 +387,7 @@ def view_absence_justification (absence_justification_id):
 						   turma = turma)
 		else:
 			abort (403)
-	
+	except:
 		flash('Could not locate the absence justification record!', 'error')
 		return redirect(url_for('classes.view_attendance_record'))
 	
