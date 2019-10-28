@@ -1,7 +1,9 @@
-from flask import flash
+from flask import flash, current_app
 from app import db
 from app.models import Turma, Enrollment, User, LessonAttendance, Lesson
 import app.assignments.models
+import pusher
+import datetime
 
 def get_class_enrollment_from_class_id (class_id):
 	return db.session.query(
@@ -36,3 +38,31 @@ def get_attendance_record (user_id):
 		attendance_record.append((user, turma, lesson_attendance))
 			
 	return attendance_record
+
+
+def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
+	if LessonAttendance.query.filter(
+			LessonAttendance.lesson_id == lesson_id).filter(
+			LessonAttendance.user_id == user_id).first() is not None:
+		return True
+	else:
+		return False
+	
+def register_student_attendance (user_id, lesson_id):
+	attendance = LessonAttendance (user_id = user_id,
+								lesson_id = lesson_id,
+								timestamp = datetime.datetime.now())
+	db.session.add(attendance)
+	db.session.commit()
+	push_attendance_to_pusher( User.query.get(user_id).username)
+	
+def push_attendance_to_pusher (username):
+	pusher_client = pusher.Pusher(
+				app_id= current_app.config['PUSHER_APP_ID'],
+				key = current_app.config['PUSHER_KEY'],
+				secret=current_app.config['PUSHER_SECRET'],
+				cluster=current_app.config['PUSHER_CLUSTER'],
+				ssl=current_app.config['PUSHER_SSL']
+	)
+	data = {"username": username}
+	pusher_client.trigger('attendance', 'new-record', {'data': data })

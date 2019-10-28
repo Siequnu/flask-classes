@@ -266,14 +266,12 @@ def batch_register_lesson_as_attended(lesson_id):
 		class_enrollment = app.classes.models.get_class_enrollment_from_class_id (lesson.turma_id)
 		
 		for enrollment, turma, user in class_enrollment:
-			register_student_as_attending (user.id, lesson_id)
+			if app.classes.models.check_if_student_has_attendend_this_lesson(user.id, lesson_id) is not True:
+				app.classes.models.register_student_attendance(user.id, lesson_id)
+				
 		flash ('Marked entire class as attending', 'success')
 		
-		#!# Currnetly broken - need to move register student as attending to model
-		
-		return render_template('classes/lesson_attendance_completed.html',
-						   title='Class attendance',
-						   greeting = app.main.models.get_greeting())
+		return redirect(url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
 	abort (403)
 
 @bp.route("/attendance/present/<user_id>/<lesson_id>")
@@ -290,10 +288,7 @@ def register_student_as_attending(user_id, lesson_id):
 			)
 			
 			#!# Check if user has already signed up for this lesson
-			if LessonAttendance.query.filter(
-					LessonAttendance.lesson_id == lesson_id).filter(
-					LessonAttendance.user_id == user_id).first() is not None:
-				
+			if app.classes.models.check_if_student_has_attendend_this_lesson (user_id, lesson_id) is True:
 				flash ('This student is already registered in this lesson.', 'info')
 				
 			else: # User not registered yet, sign 'em up.
