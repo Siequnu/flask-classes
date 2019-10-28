@@ -21,7 +21,21 @@ def get_attendance_status (lesson_id, user_id):
 		return attendance
 	else:
 		return False
+	
 
+def get_lesson_attendance_stats (lesson_id):
+	record = {}
+	lesson = Lesson.query.get(lesson_id)
+	turma = Turma.query.get(lesson.turma_id)
+	students_in_class = Enrollment.query.filter(Enrollment.turma_id == turma.id).all()
+	record['students_in_class'] = len(students_in_class)
+	
+	attendance = LessonAttendance.query.filter(
+		LessonAttendance.lesson_id == lesson_id).all()
+	record['attendance'] = len(attendance)
+	
+	return record
+	
 def get_attendance_record (user_id):
 	user_enrollment = app.assignments.models.get_user_enrollment_from_id (user_id)
 	attendance_record = []

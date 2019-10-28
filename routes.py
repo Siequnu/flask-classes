@@ -72,8 +72,14 @@ def class_admin():
 def class_attendance(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(class_id)
+		lessons_array = []
 		lessons = Lesson.query.filter(Lesson.turma_id == class_id).all()
-		return render_template('classes/class_attendance.html', title='Class attendance', turma = turma, lessons = lessons)
+		for lesson in lessons:
+			lesson_dict = lesson.__dict__
+			lesson_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson.id)
+			lessons_array.append(lesson_dict)
+			
+		return render_template('classes/class_attendance.html', title='Class attendance', turma = turma, lessons = lessons_array)
 	abort (403)
 	
 	
@@ -197,6 +203,7 @@ def view_lesson_attendance(lesson_id):
 				user_dict = user.__dict__
 				user_dict['attendance'] = app.classes.models.get_attendance_status (lesson_id, user.id)
 				user_dict['justification'] = app.classes.models.get_absence_justification (lesson_id, user.id)
+				user_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson_id)
 				attendance_array.append(user_dict)
 			
 		except:
