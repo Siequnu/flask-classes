@@ -59,13 +59,14 @@ def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
 	else:
 		return False
 	
-def register_student_attendance (user_id, lesson_id):
+def register_student_attendance (user_id, lesson_id, disable_pusher = False):
 	attendance = LessonAttendance (user_id = user_id,
 								lesson_id = lesson_id,
 								timestamp = datetime.datetime.now())
 	db.session.add(attendance)
 	db.session.commit()
-	push_attendance_to_pusher( User.query.get(user_id).username)
+	if disable_pusher is not False:
+		push_attendance_to_pusher( User.query.get(user_id).username)
 	
 def push_attendance_to_pusher (username):
 	pusher_client = pusher.Pusher(

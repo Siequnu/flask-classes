@@ -196,6 +196,7 @@ def view_lesson_attendance(lesson_id):
 			for enrollment, turma, user in class_enrollment:
 				user_dict = user.__dict__
 				user_dict['attendance'] = app.classes.models.get_attendance_status (lesson_id, user.id)
+				user_dict['justification'] = app.classes.models.get_absence_justification (lesson_id, user.id)
 				attendance_array.append(user_dict)
 			
 		except:
@@ -267,7 +268,7 @@ def batch_register_lesson_as_attended(lesson_id):
 		
 		for enrollment, turma, user in class_enrollment:
 			if app.classes.models.check_if_student_has_attendend_this_lesson(user.id, lesson_id) is not True:
-				app.classes.models.register_student_attendance(user.id, lesson_id)
+				app.classes.models.register_student_attendance(user.id, lesson_id, disable_pusher = True)
 				
 		flash ('Marked entire class as attending', 'success')
 		
