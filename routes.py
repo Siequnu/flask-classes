@@ -197,13 +197,15 @@ def view_lesson_attendance(lesson_id):
 			lesson = Lesson.query.get(lesson_id)
 			turma = Turma.query.get(lesson.turma_id)
 			
+			attendance_stats = app.classes.models.get_lesson_attendance_stats (lesson_id)
+			
 			class_enrollment = app.classes.models.get_class_enrollment_from_class_id (lesson.turma_id)
 			attendance_array = []
 			for enrollment, turma, user in class_enrollment:
 				user_dict = user.__dict__
 				user_dict['attendance'] = app.classes.models.get_attendance_status (lesson_id, user.id)
 				user_dict['justification'] = app.classes.models.get_absence_justification (lesson_id, user.id)
-				user_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson_id)
+				
 				attendance_array.append(user_dict)
 			
 		except:
@@ -214,7 +216,8 @@ def view_lesson_attendance(lesson_id):
 							   title='Lesson attendance',
 							   turma = turma,
 							   lesson = lesson,
-							   attendance_array = attendance_array)
+							   attendance_array = attendance_array,
+							   attendance_stats = attendance_stats)
 	abort (403)
 	
 	
