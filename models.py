@@ -1,6 +1,7 @@
-from flask import flash, current_app
-from app import db
-from app.models import Turma, Enrollment, User, LessonAttendance, Lesson
+from flask import flash, current_app, send_from_directory
+from flask_login import current_user
+from app import db, executor
+from app.models import Turma, Enrollment, User, LessonAttendance, Lesson, AbsenceJustificationUpload
 import app.assignments.models
 import pusher
 import datetime
@@ -33,12 +34,22 @@ def get_attendance_record (user_id):
 		for lesson in lessons:
 			lesson_dict = lesson.__dict__
 			lesson_dict['attended'] = get_attendance_status(lesson.id, user_id)
+			lesson_dict['justification'] = get_absence_justification (lesson.id, user.id)
 			lesson_attendance.append(lesson_dict)
 		
 		attendance_record.append((user, turma, lesson_attendance))
 			
 	return attendance_record
 
+
+def get_absence_justification (lesson_id, user_id):
+	justification = AbsenceJustificationUpload.query.filter(
+		AbsenceJustificationUpload.lesson_id == lesson_id).filter(
+		AbsenceJustificationUpload.user_id == user_id).first()
+	if justification is not None:
+		return justification
+	else:
+		return False
 
 def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
 	if LessonAttendance.query.filter(
@@ -66,3 +77,32 @@ def push_attendance_to_pusher (username):
 	)
 	data = {"username": username}
 	pusher_client.trigger('attendance', 'new-record', {'data': data })
+	
+	
+def new_absence_justification_from_form (form, lesson_id):
+	file = form.absence_justification_file.data
+	random_filename = app.files.models.save_file(file)
+	original_filename = app.files.models.get_secure_filename(file.filename)
+
+	new_absence_justification = AbsenceJustificationUpload (
+					user_id = current_user.id,
+					original_filename = original_filename,
+					filename = random_filename,
+					justification = form.justification.data,
+					lesson_id = lesson_id,
+					timestamp = datetime.datetime.now())
+
+	db.session.add(new_absence_justification)
+	db.session.commit()
+	
+	# Generate thumbnail
+	executor.submit(app.files.models.get_thumbnail, new_absence_justification.filename)
+	
+
+def download_absence_justification (absence_justification_id):
+	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+	return send_from_directory(filename=absence_justification.filename,
+								   directory=current_app.config['UPLOAD_FOLDER'],
+								   as_attachment = True,
+								   attachment_filename = absence_justification.original_filename)
+

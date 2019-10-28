@@ -2,10 +2,10 @@ from flask import render_template, flash, redirect, url_for, request, abort, cur
 from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
-from app.classes.forms import TurmaCreationForm, LessonForm
+from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm
 
 from app.files import models
-from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment
+from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment, AbsenceJustificationUpload
 import app.models
 
 from app import db
@@ -351,6 +351,61 @@ def view_attendance_record(user_id = False):
 						   attendance_record = attendance_record,
 						   user = user)
 	
+
+@bp.route('/absence/justification/<lesson_id>', methods=['GET', 'POST'])
+@login_required
+def upload_absence_justification (lesson_id):
+	# If current student was present at the class, no need to justify absence!
+	if app.classes.models.check_if_student_has_attendend_this_lesson (current_user.id, lesson_id) is True:
+		flash ('You are registered in this class and do not need to upload a justification.', 'info')
+		return redirect(url_for('classes.view_attendance_record'))
+	
+	form = forms.AbsenceJustificationUploadForm()
+	if form.validate_on_submit():
+		app.classes.models.new_absence_justification_from_form(form, lesson_id)
+		flash('New justification uploaded successfully!', 'success')
+		return redirect(url_for('classes.view_attendance_record'))
+	return render_template('classes/upload_absence_justification.html', title='Upload absence justification', form=form)
+
+
+@bp.route('/absence/view/<absence_justification_id>')
+@login_required
+def view_absence_justification (absence_justification_id):
+	#!# Need to delete any absence statements when deleting a user
+	
+		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+		user = User.query.get(absence_justification.user_id)
+		lesson = Lesson.query.get(absence_justification.lesson_id)
+		turma = Turma.query.get(lesson.turma_id)
+		
+		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
+			return render_template('classes/view_absence_justification.html',
+						   title='View absence justification',
+						   absence_justification = absence_justification,
+						   user = user,
+						   lesson = lesson,
+						   turma = turma)
+		else:
+			abort (403)
+	
+		flash('Could not locate the absence justification record!', 'error')
+		return redirect(url_for('classes.view_attendance_record'))
+	
+
+@bp.route('/absence/justification/download/<absence_justification_id>')
+@login_required
+def download_absence_justification(absence_justification_id):
+	try:
+		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+		user = User.query.get(absence_justification.user_id)
+		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
+			return app.classes.models.download_absence_justification(absence_justification_id)
+		else:
+			abort (403)
+	except:
+		flash('Could not locate the absence justification record!', 'error')
+		return redirect(url_for('classes.view_attendance_record'))
+
 
 @bp.route("/export/<class_id>")
 @login_required

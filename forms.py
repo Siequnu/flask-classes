@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, DateField, SelectMultipleField, BooleanField, FormField, TextAreaField
+from wtforms import StringField, SubmitField, SelectField, DateField, SelectMultipleField, BooleanField, FormField, TextAreaField, FileField
 from wtforms.validators import ValidationError, DataRequired
 from flask_wtf.file import FileField, FileRequired
 from app import db
@@ -20,4 +20,10 @@ class LessonForm(FlaskForm):
 	date = DateField('Class date', validators=[DataRequired()])
 	edit = SubmitField('Edit lesson')
 	submit = SubmitField('Create lesson')
+	
+	
+class AbsenceJustificationUploadForm(FlaskForm):
+	absence_justification_file = FileField(label='Absence justification document:')
+	justification = TextAreaField('Justify your absence:', validators=[DataRequired()])
+	submit = SubmitField('Submit')
 
