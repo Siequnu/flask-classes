@@ -213,6 +213,9 @@ def view_lesson_attendance(lesson_id):
 @bp.route("/attendance/code/", methods = ['GET', 'POST'])
 @login_required
 def enter_attendance_code():
+	# If admin, redirect to the class admin page
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		return redirect(url_for('classes.class_admin'))
 	if request.values.get('attendance'):
 		return redirect(url_for('classes.register_attendance', attendance_code = request.values.get('attendance')))
 	greeting = app.main.models.get_greeting()
