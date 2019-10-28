@@ -55,6 +55,27 @@ def get_attendance_record (user_id):
 			
 	return attendance_record
 
+def get_user_attendance_record_stats (user_id, percentage = False):
+	record = {}
+	record['total_lessons_count'] = 0
+	record['lessons_attended'] = 0
+	
+	user_enrollment = app.assignments.models.get_user_enrollment_from_id (user_id)
+	for enrollment, user, turma in user_enrollment:	
+		lessons = Lesson.query.filter(Lesson.turma_id == turma.id)
+		record['total_lessons_count'] += lessons.count()
+	
+		for lesson in lessons:
+			if get_attendance_status(lesson.id, user_id) is not False:
+				record['lessons_attended'] += 1
+	
+	if percentage:
+		if record['total_lessons_count'] == 0:
+			return 100
+		else:
+			return int(float(record['lessons_attended']) * 100 / float(record['total_lessons_count']))
+	else: return record
+
 
 def get_absence_justification (lesson_id, user_id):
 	justification = AbsenceJustificationUpload.query.filter(
