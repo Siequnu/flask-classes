@@ -221,6 +221,21 @@ def view_lesson_attendance(lesson_id):
 	abort (403)
 	
 	
+@bp.route("/absence/justifications/view/")
+@login_required
+def view_all_absence_justifications():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		absence_justifications = db.session.query(AbsenceJustificationUpload, User, Lesson, Turma).join(
+				User, AbsenceJustificationUpload.user_id == User.id).join(
+				Lesson, AbsenceJustificationUpload.lesson_id == Lesson.id).join(
+			Turma, Lesson.turma_id == Turma.id).all()
+			
+		
+
+		return render_template('classes/view_all_absence_justifications.html',
+							  absence_justifications = absence_justifications)
+	abort (403)
+	
 @bp.route("/attendance/code/", methods = ['GET', 'POST'])
 @login_required
 def enter_attendance_code():
