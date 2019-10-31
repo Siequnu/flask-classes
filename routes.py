@@ -435,13 +435,15 @@ def download_absence_justification(absence_justification_id):
 
 @bp.route('/absence/justification/delete/<absence_justification_id>')
 @login_required
-def delete_absence(absence_justification_id):
+def delete_absence_justification(absence_justification_id):
 	try:
 		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+		lesson_id = absence_justification.lesson_id
 		user = User.query.get(absence_justification.user_id)
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
 			flash('Deleted student absence justification.', 'success')
-			return app.classes.models.delete_absence_justification(absence_justification_id)
+			app.classes.models.delete_absence_justification(absence_justification_id)
+			return redirect(url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
 		else:
 			abort (403)
 	except:
