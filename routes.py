@@ -361,6 +361,33 @@ def remove_attendance(attendance_id):
 	
 	abort (403)
 	
+@bp.route("/attendance/open/view")
+@login_required
+def view_open_attendance_codes ():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		try:
+			attendance_codes = db.session.query(AttendanceCode).all()
+			return render_template('classes/view_open_attendance_codes.html', attendance_codes = attendance_codes)
+		except:
+			flash ('An error occured while viewing attendance codes.', 'error')
+			return redirect (url_for('classes.class_admin'))
+	
+	abort (403)
+	
+@bp.route("/attendance/close/all")
+@login_required
+def close_all_attendance_codes ():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		
+		attendance_codes = db.session.query(AttendanceCode).all()
+		for code in attendance_codes:
+			db.session.delete(code)
+			db.session.commit()
+		flash ('Successfully deleted all open attendance codes', 'success')
+		return redirect (url_for('classes.class_admin'))
+	
+	abort (403)
+	
 	
 @bp.route("/attendance/record/")
 @bp.route("/attendance/record/<user_id>")
