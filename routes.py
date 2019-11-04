@@ -2,13 +2,14 @@ from flask import render_template, flash, redirect, url_for, request, abort, cur
 from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
-from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm
+from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm, ClassBulkEmailForm
 
 from app.files import models
 from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment, AbsenceJustificationUpload
 import app.models
+import app.email_model
 
-from app import db
+from app import db, executor
 
 import datetime, uuid, random
 
@@ -510,5 +511,29 @@ def remove_enrollment(enrollment_id):
 		db.session.commit()
 		flash('Student removed from class!', 'success')
 		return redirect(url_for('classes.manage_enrollment', class_id = class_id))
+	abort (403)
+	
+	
+# Send a bulk class email
+@bp.route("/email/bulk/<class_id>", methods=['GET', 'POST'])
+def send_bulk_email_to_class(class_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		turma = Turma.query.get(class_id)
+		users = app.classes.models.get_class_enrollment_from_class_id(class_id)
+		user_emails = ''
+		for enrollment, turma, user in users:
+			user_emails += ' ' + user.email
+		
+		form = ClassBulkEmailForm()
+		if form.validate_on_submit():
+			subject = form.subject.data
+			body = render_template('email/blank_template.html', body = form.body.data)
+			executor.submit(app.email_model.send_email(user_emails, subject, body))
+			flash ('Sent a bulk email to all students in ' + turma.turma_label)
+			return redirect(url_for('classes.class_admin'))
+		return render_template('classes/bulk_email_class.html', title='Send a message to the class',
+							   turma = turma,
+							   users = users,
+							   form = form)
 	abort (403)
 	

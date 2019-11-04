@@ -27,3 +27,8 @@ class AbsenceJustificationUploadForm(FlaskForm):
 	justification = TextAreaField('Justify your absence:', validators=[DataRequired()])
 	submit = SubmitField('Submit')
 
+
+class ClassBulkEmailForm(FlaskForm):
+	subject = StringField('Subject line', validators=[DataRequired()])
+	body = TextAreaField('Email message:', validators=[DataRequired()])
+	submit = SubmitField('Send')
