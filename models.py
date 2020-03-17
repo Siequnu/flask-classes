@@ -147,3 +147,20 @@ def delete_absence_justification (absence_justification_id):
 	db.session.delete(absence_justification)
 	db.session.commit()
 	
+
+def delete_all_user_absence_justification_uploads (user_id):
+	# Delete all the pads this user is collaborating on
+	absence_justications = AbsenceJustificationUpload.query.filter_by(user_id=user_id).all()
+	if absence_justications is not None:
+		for justification in absence_justications:
+			db.session.delete(justification)
+	db.session.commit()
+
+# Method called when deleting a user
+def delete_all_user_attendance_records (user_id):
+	# Delete all the pads this user is collaborating on
+	attendances = LessonAttendance.query.filter_by(user_id=user_id).all()
+	if attendances is not None:
+		for attendance in attendances:
+			db.session.delete(attendance)
+	db.session.commit()
