@@ -378,8 +378,7 @@ def view_open_attendance_codes ():
 @bp.route("/attendance/close/all")
 @login_required
 def close_all_attendance_codes ():
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):		
 		attendance_codes = db.session.query(AttendanceCode).all()
 		for code in attendance_codes:
 			db.session.delete(code)
@@ -394,7 +393,7 @@ def close_all_attendance_codes ():
 @bp.route("/attendance/record/<user_id>")
 @login_required
 def view_attendance_record(user_id = False):
-	if user_id: # Admin can override the current_user by submitting a user_id
+	if user_id and app.models.is_admin(current_user.username): # Admin can override the current_user by submitting a user_id
 		attendance_record = app.classes.models.get_attendance_record(user_id)
 		user = User.query.get(user_id)
 	else:
@@ -404,6 +403,24 @@ def view_attendance_record(user_id = False):
 						   title='Attendance record',
 						   attendance_record = attendance_record,
 						   user = user)
+
+@bp.route("/class/attendance/<class_id>/")
+@login_required
+def view_class_attendance_record():
+	if user_id and app.models.is_admin(current_user.username): 
+		turma = Turma.query.get(class_id)
+		
+		# Get students enrolled in this class
+		
+		# Get the lesson record for this class
+		lessons = Lesson.query.filter(Lesson.turma_id == turma_id)
+		
+		user = User.query.get(user_id)
+	return render_template('classes/view_class_attendance_record.html',
+						   title='Attendance record',
+						   attendance_record = attendance_record,
+						   user = user)
+	
 	
 
 @bp.route('/absence/justification/<lesson_id>', methods=['GET', 'POST'])
