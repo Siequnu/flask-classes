@@ -1,0 +1,78 @@
+ {% extends "header.html" %} {% block app_content %}
+
+<div class="container">
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <a href="{{url_for('classes.view_attendance_record')}}" <button class="btn btn-light">
+                    <i class="fa fa-chevron-left">
+        </i> Back
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-10">
+
+                <h2>Absence justification</h2>
+
+            </div>
+        </div>
+    </div>
+</div>
+        <br>
+
+<div class="container">
+ <h5>Absence justification for your {{turma.turma_label}} class on {{lesson.date}}.</h5>
+ <br>
+ <div class="row">
+  <div class="col-xs-12 col-md-4">
+  
+  <div class="library_card">
+ <div class="img-library_card">
+  {% set thumbnail_filename = absence_justification.filename.split('.') %}
+  <img src="/static/thumbnails/{{thumbnail_filename[0]}}.jpeg" />
+ </div>
+ <div class="library_card-content">
+  <h4 class="library_card-title">
+       {{user.username}}</h4> 
+ <p>{{absence_justification.timestamp}} - {{turma.turma_label}}</p>
+
+     
+ </div>
+  <div class="library_card-read-more">
+  <a href="{{url_for('classes.download_absence_justification', absence_justification_id = absence_justification.id)}}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-file-download"></i> Download</a>
+  {% if current_user.is_admin %}
+  <a href="{{url_for('classes.register_student_as_attending', user_id = user.id, lesson_id = lesson.id)}}" class="btn btn-success btn-sm" role="button"><i class="fa fa-thumbs-up"></i> Approve</a>
+  <a href="{{url_for('classes.delete_absence_justification', absence_justification_id = absence_justification.id)}}" class="btn btn-warning btn-sm" role="button"><i class="fa fa-trash-alt"></i> Delete</a>
+  {% endif %}
+  </div>
+</div>
+
+</div>
+
+<div class="col-xs-12 col-md-8">
+ 
+<div class="container">
+ 
+      
+        <div class="card">
+  <div class="card-header">
+    <h5 class="timeline-title"><a href="{{url_for('classes.download_absence_justification', absence_justification_id = absence_justification.id)}}">{{absence_justification.original_filename}}</a></h5>
+  </div>
+  <div class="card-body">
+    <p class="card-text">{{absence_justification.justification}}</p>
+  </div>
+    <div class="card-footer text-muted">
+    {{absence_justification.timestamp}} by {{user.username}}
+  </div>
+</div>
+<br>
+
+  
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}

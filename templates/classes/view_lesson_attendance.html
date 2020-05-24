@@ -1,0 +1,136 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+ <link rel="stylesheet" href="/static/css/form-control-borderless.css">
+<div class="container">
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <a href="{{url_for('classes.class_attendance', class_id = lesson.turma_id)}}" <button class="btn btn-light">
+                    <i class="fa fa-chevron-left">
+        </i> Back
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-10">
+
+                <h2>Lesson attendance - {{turma.turma_label}}</h2>
+
+            </div>
+        </div>
+        <br>
+
+        <div class="card bg-light mb-3" style="max-width: 50rem;">
+            <div class="card-body">
+             
+                          <div class="container">
+          <div class="row">
+            <div class="col-3 align-self-center">
+              <h3 class="display-5">
+                <span class="badge badge-secondary">
+                  <i class="fa fa-user-check ">
+                  </i> {{attendance_stats.attendance}} / {{attendance_stats.students_in_class}}
+                </span>
+              </h3>
+            </div>
+            <div class="col-6">
+             
+             
+               <h4><i class="fa fa-users"></i> {{turma.turma_label}}</h4>
+                <h4><i class="fa fa-calendar-alt"></i> {{lesson.date}}  {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</h4>
+            </div>
+            </div>
+          </div>
+             
+             
+                
+            </div>
+            <div class="card-footer">
+             <a href="{{url_for('classes.batch_register_lesson_as_attended', lesson_id = lesson.id)}}" <button class="btn btn-sm btn-outline-success"><i class="fa fa-toggle-on"></i>  Mark all students as attending </button></a>
+            </div>
+        </div>
+
+
+        <div class="row justify-content-left">
+            <div class="col-12 col-md-10 col-lg-8">
+                <form class="card">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-search h4 text-body">
+          </i>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for students">
+                        </div>
+                        <!--end of col-->
+                    </div>
+                </form>
+            </div>
+            <!--end of col-->
+        </div>
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table summary="Student attendance" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student #
+                                    </th>
+                                    <th>Username
+                                    </th>
+                                    <th>Timestamp
+                                    </th>
+                                    <th><i class="fa fa-user-md">
+                                    </th>
+                                    <th>Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="searchableTable">
+                                {% for user in attendance_array %}
+                                <tr><td>{{user.student_number}}
+                                </td>
+                                <td>{{user.username}}
+                                </td>
+                                {% if user.attendance %}
+                                <td>{{user.attendance.timestamp.strftime('%d %b %H:%M:%S')}}
+                                </td>
+                                {% else %}
+                                <td></td>
+                                {% endif %}
+                                {% if user.justification %}
+                                <td><a href="{{url_for('classes.view_absence_justification', absence_justification_id = user.justification.id)}}" <button class="btn btn-sm btn-outline-primary"><i class="fa fa-user-md"></i>  View justification </button></a></td>
+                                {% else %}
+                                <td></td>
+                                {% endif %}
+                                 {% if user.attendance %}
+                                <td>
+                                    <a href="{{url_for('classes.remove_attendance', attendance_id = user.attendance.id)}}" <button class="btn btn-sm btn-outline-warning"><i class="fa fa-user-slash"></i>  Remove attendance </button></a>
+                                
+                                {% else %}
+                                   <td>
+                                   <a href="{{url_for('classes.register_student_as_attending', user_id = user.id, lesson_id = lesson.id)}}" <button class="btn btn-sm btn-outline-success"><i class="fa fa-user-plus"></i>  Register as attending </button></a>
+                                {% endif %}
+                                <a href="{{url_for('classes.view_attendance_record', user_id = user.id, attendance_id = user.attendance.id)}}" <button class="btn btn-sm btn-outline-primary"><i class="fa fa-tasks"></i>  View attendance record </button></a>
+                                   </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!--end of .table-responsive-->
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    {% endblock %}

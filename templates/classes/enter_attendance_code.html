@@ -1,0 +1,51 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+ <link rel="stylesheet" href="/static/css/form-control-borderless.css">
+<div class="container">
+    <br>
+    <div class="container">
+     <div class="col-md-12">
+        <h1><i class="fa fa-user-check"></i> Attendance
+        </h1>
+       <hr>
+     </div>
+     
+     <div class="row justify-content-left">
+     <div class="col-12 col-md-10 col-lg-6">
+     
+     <br>
+     <h5>To register attendance scan the QR code or enter the word shown at the start of the class.</h5>
+     <br>
+                <form class="card">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-university h4 text-body">
+          </i>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input id="myInput" class="form-control form-control-lg form-control-borderless" name ="attendance" type="attendance" placeholder="Enter class word here">
+                        </div>
+                        
+                        <div class="col-auto">
+                                        <button class="btn btn-lg btn-success" type="submit">I'm here!</button>
+                                    </div>
+                        <!--end of col-->
+                    </div>
+                </form>
+            </div>
+            <!--end of col-->
+            
+            <div class="col-md-12 col-lg-1 col-sm-12 text-centered ">
+            </div>
+            <div class="col-md-12 col-lg-4 col-sm-12 text-centered ">
+        <br>
+        <p><a href="{{url_for('classes.view_attendance_record')}}" <button class="btn btn-lg btn-primary"><i class="fa fa-user-check"></i> View your attendance record</button></a></p>
+         </div>
+        </div>
+        </div>
+    
+    </div>
+
+
+
+    {% endblock %}

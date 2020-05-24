@@ -1,0 +1,56 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+
+
+<div class="container">
+    <br>
+<div class="row">
+  <div class="col-md-12">
+    <h1><i class="fa fa-user-check"></i> Class attendance record</h1>
+    <hr>
+  </div>
+</div>
+
+     
+
+     {% for user, turma, lesson_attendance in attendance_record %}
+      <div class="col-md-12">
+      <div class="jumbotron">
+        <h2><i class="fa fa-university"></i> {{user.username}} - {{turma.turma_label}}</h2>
+        <hr class="my-4">
+       
+       <div class="col-4"> 
+        <ul class="list-group">       
+       {% for lesson in lesson_attendance %}
+       {% if lesson.attended %}
+       <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-success"> {{lesson.date.strftime('%A')}}, {{lesson.date.strftime('%B')}} {{lesson.date.strftime('%d')}}, {{lesson.date.strftime('%Y')}}
+       <span class="badge badge-success badge-pill"><i class="fa fa-calendar-check"></i></span>
+       </li>
+       {% else %}
+       <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-danger"> {{lesson.date.strftime('%A')}}, {{lesson.date.strftime('%B')}} {{lesson.date.strftime('%d')}}, {{lesson.date.strftime('%Y')}}
+       <span class="badge badge-danger badge-pill"><i class="fa fa-calendar-times"></i>
+       </span>
+       </li>
+       {% endif %}
+       
+       {% if lesson.justification != False %}
+       <a href="{{url_for('classes.view_absence_justification', absence_justification_id = lesson.justification.id)}}" <button class="btn btn-sm btn-outline-warning"><i class="fa fa-user-md"></i> View uploaded justification</button></a>       
+       {% elif current_user.is_admin == True and lesson.attended == None %}
+       <a href="{{url_for('classes.register_student_as_attending', user_id = user.id, lesson_id = lesson.id)}}" <button class="btn btn-sm btn-outline-danger"><i class="fa fa-user-plus"></i> Register as attended</button></a>       
+       {% elif lesson.attended == False %}
+       <a href="{{url_for('classes.upload_absence_justification', lesson_id = lesson.id)}}" <button class="btn btn-sm btn-outline-danger"><i class="fa fa-user-md"></i> Submit justification</button></a>
+       {% endif %}
+       
+       
+       <br>
+       
+       {% endfor %}
+       </ul>
+       </div> 
+      </div>
+      </div>
+     {% endfor %}
+    </div>
+    </div>
+
+
+    {% endblock %}

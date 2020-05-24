@@ -1,0 +1,103 @@
+
+  {% extends "header.html" %}
+  
+  
+  {% block app_content %}
+<link rel="stylesheet" href="/static/css/form-control-borderless.css">
+<div class="container">
+<br>
+
+
+{% block body %}
+
+   <div class="row">
+   <div class="col-md-8">
+    <h1><i class="fa fa-university"></i> Class admin</h1>
+    <hr>
+    <a href="{{url_for('classes.create_class')}}" <button class="btn btn-outline-success"><i class="fa fa-plus-circle"></i>  Create new class </button></a>
+    <a href="{{url_for('classes.view_all_absence_justifications')}}" <button class="btn btn-outline-info"><i class="fa fa-user-md"></i>  View absence justifications </button></a>
+    <a href="{{url_for('classes.view_open_attendance_codes')}}" <button class="btn btn-outline-primary"><i class="fa fa-eye"></i>  View open attendance codes </button></a>
+  </div>
+  </div>
+  
+<br>
+        <div class="row justify-content-left">
+            <div class="col-12 col-md-10 col-lg-8">
+                <form class="card">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-search h4 text-body">
+          </i>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for students">
+                        </div>
+                        <!--end of col-->
+                    </div>
+                </form>
+            </div>
+            <!--end of col-->
+        </div>
+   
+   <div class="container">
+	
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="table">
+        <table summary="List of classes" class="table table-bordered table-hover">
+		  <thead>
+            <tr>
+              <th>ID</th>
+              <th>Number</th>
+              <th>Label</th>
+			  <th>Term</th>
+			  <th>Year</th>
+			  <th>Actions</th>
+            </tr>
+          </thead>
+		  <tbody id="searchableTable">
+			{% for class in classes_array %}
+            <tr>
+              <td>{{class.id}}</td>
+              <td>{{class.turma_number}}</td>
+              <td>{{class.turma_label}}</td>
+			  <td>{{class.turma_term}}</td>
+			  <td>{{class.turma_year}}</td>
+			  <td>
+          <a href="{{url_for('classes.class_attendance', class_id=class.id)}}" <button class="btn btn-info bln-block"><i class="fa fa-users"></i> Class attendance</button></a>
+          <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}" <button class="btn btn-primary bln-block"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
+          
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class ="fa fa-ellipsis-h">
+              </i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="{{url_for('classes.manage_enrollment', class_id=class.id)}}" <button class="btn btn-sm btn-secondary bln-block"><i class="fa fa-user-tag"></i> Manage enrollment</button></a>
+              <a class="dropdown-item" href="{{url_for('classes.export_class_data', class_id=class.id)}}" <button class="btn btn-sm btn-primary bln-block"><i class="fa fa-file-export"></i> Export class data</button></a>
+              <a class="dropdown-item" href="{{url_for('classes.edit_class', turma_id=class.id)}}" <button class="btn btn-sm btn-warning bln-block"><i class="fa fa-edit"></i> Edit class</button></a>
+              <a class="dropdown-item" href="{{url_for('classes.delete_class', turma_id=class.id)}}" <button class="btn btn-sm btn-danger bln-block"><i class="fa fa-trash-alt"></i> Delete</button></a>
+            </div>
+         
+        </td>
+            </tr>
+           {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+            </tr>
+          </tfoot>
+        </table>
+      </div><!--end of .table-responsive-->
+    </div>
+  </div>
+</div>
+   
+  
+	</div
+  
+    </div>
+
+{% endblock %}
+</div>
+{% endblock %}

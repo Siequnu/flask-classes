@@ -1,0 +1,68 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+ 
+ <div class="container">
+	<br>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				<p><a href="{{url_for('classes.close_attendance', attendance_code_id = attendance_code_object.id)}}" <button class="btn btn-light"><i class="fa fa-times-circle"></i>  Close attendance </button></a></p>
+			</div>
+			<div class="col-md-9">
+
+				<h1>{{greeting}}!</h1>
+
+			</div>
+		</div>
+		
+		<br>
+
+<div class="row">
+			<div class="col-md-7">
+    <h5>The registration code is:</h5>
+    <br>
+    <h1>{{code}}</h1>
+    <br>
+	<img src="{{ qrcode(url, box_size = 15) }}">
+	</div>
+<div class="col-md-2">
+
+	<script src="https://js.pusher.com/5.0/pusher.min.js"></script>	
+ <script>var pusher = new Pusher('{{config['PUSHER_KEY']}}', {
+	  cluster: 'ap3',
+	  forceTLS: true
+	});
+
+	var channel = pusher.subscribe('attendance');
+	channel.bind('my-event', function(data) {
+	  alert(JSON.stringify(data));
+	});
+	
+	
+channel.bind('new-record', (data) => {
+
+       $('#attendance').append(`
+            <tr>
+                <td><div> <h5>${data.data.username} </h5></div></td>
+            </tr>
+       `)
+    });</script>
+	
+	<div class="attendee-container" style="overflow: auto; max-height: 80vh">
+			<div class="table-responsive">
+				<table class="attendance" id="attendance">
+					<thead>
+						<tr>
+							
+						</tr>
+					</thead>
+					<tbody>
+					
+					</tbody>
+				</table>
+			</div>
+		</div>
+	
+	
+</div>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+
+
+<div class="container">
+    <br>
+<div class="row">
+  <div class="col-md-12">
+    <h1><i class="fa fa-user-md"></i> Absence justifications</h1>
+    <hr>
+  </div>
+</div>
+
+     
+<link rel="stylesheet" href="/static/css/form-control-borderless.css">
+         <div class="row justify-content-left">
+            <div class="col-12 col-md-10 col-lg-8">
+                <form class="card">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col-auto">
+                            <i class="fas fa-search h4 text-body">
+          </i>
+                        </div>
+                        <!--end of col-->
+                        <div class="col">
+                            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for students">
+                        </div>
+                        <!--end of col-->
+                    </div>
+                </form>
+            </div>
+            <!--end of col-->
+        </div>
+
+<br>
+   <h3>Justifications</h3>
+   <br>
+      <div class="table-responsive">
+            <table id="dtBasicExample" summary="User table" class="table table-striped table-bordered table-sm table-hover text-small"  cellspacing="0" width="100%">
+           <thead>
+              <tr>
+              <th><i class="fa fa-id-card-alt"></i></th>
+              <th><i class="fa fa-signature"></i></th>
+              <th><i class="fa fa-at"></i></th>
+        		  <th><i class="fa fa-university"></i></th>
+        		  <th><i class="fa fa-clock"></i></th>
+        		  <th><i class="fa fa-tools"></i></th>
+            </tr>
+          </thead>
+		  <tbody id="searchableTable">
+			{% for absence_justification_upload, user, lesson, turma in absence_justifications %}
+            <tr>
+              <td>{{user.student_number}}</td>
+              <td>{{user.username}}</td>
+              <td>{{user.email}}</td>
+              <td>{{turma.turma_label}}</td>
+              <td>{{lesson.start_time}}</td>
+              <td>
+               <a href="{{url_for('classes.view_absence_justification', absence_justification_id = absence_justification_upload.id)}}" class="btn btn-primary btn-sm btn-block" role="button"><i class="fa fa-user-md"></i> View justification</a>           
+              </td>
+            </tr>
+           {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+            </tr>
+          </tfoot>
+        </table>
+      </div><!--end of .table-responsive-->
+     
+     
+
+    {% endblock %}

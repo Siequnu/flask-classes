@@ -1,0 +1,67 @@
+ {% extends "header.html" %}
+ {% from 'bootstrap/form.html' import render_form %} 
+ {% block app_content %}
+
+<div class="container">
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <a href="{{url_for('classes.class_admin')}}" <button class="btn btn-light">
+                    <i class="fa fa-chevron-left">
+        </i> Back
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-10">
+
+                <h2>Bulk email</h2>
+
+            </div>
+        </div>
+    </div>
+</div>
+        <br>
+
+<div class="container">
+ <h5>Send a message to all students in {{turma.turma_label}}</h5>
+ <br>
+ <div class="row">
+  <div class="col-xs-12 col-md-4">
+  
+  <div class="library_card">
+ <div class="library_card-content">
+  <h4 class="library_card-title">
+       To</h4> 
+ {%for enrollment, turma, user in users %}
+ <p>{{user.username}} - <i>{{user.email}}</i></p>
+ {% endfor %}
+
+ </div>
+</div>
+
+</div>
+
+<div class="col-xs-12 col-md-8">
+ 
+<div class="container">
+ 
+      
+        <div class="card">
+  <div class="card-header">
+    <h5 class="timeline-title">Message</h5>
+  </div>
+  <div class="card-body">
+    {{ render_form(form) }}
+  </div>
+</div>
+<br>
+
+  
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}

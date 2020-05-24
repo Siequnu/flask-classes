@@ -1,0 +1,35 @@
+ {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+<div class="container">
+    <br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <a href="{{url_for('classes.class_attendance', class_id = turma.id)}}" <button class="btn btn-light">
+                    <i class="fa fa-chevron-left">
+        </i> Back
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-10">
+
+                <h1>{{title}}</h1>
+
+            </div>
+        </div>
+        <hr>
+        <br>
+
+
+        <div class="card bg-light mb-3" style="max-width: 25rem;">
+            <div class="card-body">
+                <h4><i class="fa fa-users"></i> {{turma.turma_label}}</h4>
+                <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h4>
+                <hr>
+                {{ render_form(form) }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
