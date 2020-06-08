@@ -7,7 +7,7 @@
 			<div class="col-md-3">
 				<p>
 					<a href="{{url_for('classes.close_attendance', attendance_code_id = attendance_code_object.id)}}"
-					<button class="btn btn-light"><i class="fa fa-times-circle"></i> Close attendance </button></a>
+						<button class="btn btn-light"><i class="fa fa-times-circle"></i> Close attendance </button></a>
 				</p>
 			</div>
 			<div class="col-md-9">
@@ -28,7 +28,9 @@
 			<div class="col-md-2">
 
 				<script src="https://js.pusher.com/5.0/pusher.min.js"></script>
-				<script>var pusher = new Pusher('{{config['PUSHER_KEY']}}', {
+				<script>
+					console.log(config.pusherKey);
+					var pusher = new Pusher(config.pusherKey, {
 						cluster: 'ap3',
 						forceTLS: true
 					});
