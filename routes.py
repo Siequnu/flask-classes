@@ -306,6 +306,11 @@ def batch_register_lesson_as_attended(lesson_id):
 @login_required
 def register_student_as_attending(user_id, lesson_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		user = User.query.get(user_id)
+		if User is None:
+			abort (404)
+		else:
+			username = user.username
 		try:
 			pusher_client = pusher.Pusher(
 				app_id= current_app.config['PUSHER_APP_ID'],
