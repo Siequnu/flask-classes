@@ -1,10 +1,23 @@
 from flask import flash, current_app, send_from_directory
 from flask_login import current_user
 from app import db, executor
-from app.models import Turma, Enrollment, User, LessonAttendance, Lesson, AbsenceJustificationUpload
+from app.models import Turma, Enrollment, User, LessonAttendance, Lesson
 import app.assignments.models
 import pusher
-import datetime
+from datetime import datetime
+
+class AbsenceJustificationUpload(db.Model):
+	__table_args__ = {'sqlite_autoincrement': True}
+	id = db.Column(db.Integer, primary_key=True)
+	original_filename = db.Column(db.String(140))
+	filename = db.Column(db.String(140))
+	justification = db.Column(db.String(1500))
+	timestamp = db.Column(db.DateTime, default=datetime.now())
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+	
+	def __repr__(self):
+		return '<Absence Justification Upload {}>'.format(self.original_filename)
 
 def get_class_enrollment_from_class_id (class_id):
 	return db.session.query(
@@ -97,7 +110,7 @@ def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
 def register_student_attendance (user_id, lesson_id, disable_pusher = False):
 	attendance = LessonAttendance (user_id = user_id,
 								lesson_id = lesson_id,
-								timestamp = datetime.datetime.now())
+								timestamp = datetime.now())
 	db.session.add(attendance)
 	db.session.commit()
 	if disable_pusher is not False:
@@ -114,7 +127,7 @@ def push_attendance_to_pusher (username):
 	data = {"username": username}
 	pusher_client.trigger('attendance', 'new-record', {'data': data })
 	
-	
+
 def new_absence_justification_from_form (form, lesson_id):
 	file = form.absence_justification_file.data
 	random_filename = app.files.models.save_file(file)
@@ -126,7 +139,7 @@ def new_absence_justification_from_form (form, lesson_id):
 					filename = random_filename,
 					justification = form.justification.data,
 					lesson_id = lesson_id,
-					timestamp = datetime.datetime.now())
+					timestamp = datetime.now())
 
 	db.session.add(new_absence_justification)
 	db.session.commit()
@@ -134,7 +147,7 @@ def new_absence_justification_from_form (form, lesson_id):
 	# Generate thumbnail
 	executor.submit(app.files.models.get_thumbnail, new_absence_justification.filename)
 	
-
+# Download an absence justification
 def download_absence_justification (absence_justification_id):
 	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
 	return send_from_directory(filename=absence_justification.filename,
@@ -142,14 +155,15 @@ def download_absence_justification (absence_justification_id):
 								   as_attachment = True,
 								   attachment_filename = absence_justification.original_filename)
 
+# Delete absence justification
 def delete_absence_justification (absence_justification_id):
 	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
 	db.session.delete(absence_justification)
 	db.session.commit()
 	
 
+# Delete all user absence justification uploads
 def delete_all_user_absence_justification_uploads (user_id):
-	# Delete all the pads this user is collaborating on
 	absence_justications = AbsenceJustificationUpload.query.filter_by(user_id=user_id).all()
 	if absence_justications is not None:
 		for justification in absence_justications:
@@ -158,7 +172,7 @@ def delete_all_user_absence_justification_uploads (user_id):
 
 # Method called when deleting a user
 def delete_all_user_attendance_records (user_id):
-	# Delete all the pads this user is collaborating on
+	# Delete all the user attendance records
 	attendances = LessonAttendance.query.filter_by(user_id=user_id).all()
 	if attendances is not None:
 		for attendance in attendances:

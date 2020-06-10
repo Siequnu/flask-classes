@@ -3,9 +3,10 @@ from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
 from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm, ClassBulkEmailForm
+from app.classes.models import AbsenceJustificationUpload
 
 from app.files import models
-from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment, AbsenceJustificationUpload
+from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment
 import app.models
 import app.email_model
 
@@ -403,7 +404,7 @@ def view_attendance_record(user_id = False):
 						   title='Attendance record',
 						   attendance_record = attendance_record,
 						   user = user)
-
+'''
 @bp.route("/class/attendance/<class_id>/")
 @login_required
 def view_class_attendance_record():
@@ -420,7 +421,7 @@ def view_class_attendance_record():
 						   title='Attendance record',
 						   attendance_record = attendance_record,
 						   user = user)
-	
+'''	
 	
 
 @bp.route('/absence/justification/<lesson_id>', methods=['GET', 'POST'])
