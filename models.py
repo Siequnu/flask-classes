@@ -6,6 +6,16 @@ import app.assignments.models
 import pusher
 from datetime import datetime
 
+class AttendanceCode (db.Model):
+	__table_args__ = {'sqlite_autoincrement': True}
+	id = db.Column(db.Integer, primary_key=True)
+	code = db.Column(db.String(140))
+	lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+	
+	def __repr__(self):
+		return '<Attendance Code {}>'.format(self.code)
+	
+
 class AbsenceJustificationUpload(db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)

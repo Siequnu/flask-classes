@@ -3,10 +3,10 @@ from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
 from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm, ClassBulkEmailForm
-from app.classes.models import AbsenceJustificationUpload
+from app.classes.models import AbsenceJustificationUpload, AttendanceCode
 
 from app.files import models
-from app.models import Turma, Lesson, LessonAttendance, AttendanceCode, User, Enrollment
+from app.models import Turma, Lesson, LessonAttendance, User, Enrollment
 import app.models
 import app.email_model
 
@@ -455,6 +455,7 @@ def view_absence_justification (absence_justification_id):
 		lesson = Lesson.query.get(absence_justification.lesson_id)
 		turma = Turma.query.get(lesson.turma_id)
 		
+		# Only admin or absence_justification uploader can view this justification
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
 			return render_template('classes/view_absence_justification.html',
 						   title='View absence justification',
@@ -492,8 +493,8 @@ def delete_absence_justification(absence_justification_id):
 		lesson_id = absence_justification.lesson_id
 		user = User.query.get(absence_justification.user_id)
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
-			flash('Deleted student absence justification.', 'success')
 			app.classes.models.delete_absence_justification(absence_justification_id)
+			flash('Deleted student absence justification.', 'success')
 			return redirect(url_for('classes.view_lesson_attendance', lesson_id = lesson_id))
 		else:
 			abort (403)
