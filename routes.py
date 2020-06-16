@@ -551,7 +551,12 @@ def send_bulk_email_to_class(class_id):
 		form = ClassBulkEmailForm()
 		if form.validate_on_submit():
 			subject = form.subject.data
-			body = render_template('email/blank_template.html', body = form.body.data)
+			body = render_template(
+				'email/blank_template.html', 
+				body = form.body.data, 
+				subject = subject,
+				app_name = current_app.config['APP_NAME']
+				)
 			executor.submit(app.email_model.send_email(user_emails, subject, body))
 			flash ('Sent a bulk email to all students in ' + turma.turma_label)
 			return redirect(url_for('classes.class_admin'))
