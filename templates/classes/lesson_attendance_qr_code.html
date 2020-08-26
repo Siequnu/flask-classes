@@ -1,5 +1,8 @@
 {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
 
+<!-- JS config -->
+<script src="/static/js/config_{{config.APP_NAME}}.js"></script>
+
 <div class="container">
 	<br>
 	<div class="container">
@@ -29,7 +32,6 @@
 
 				<script src="https://js.pusher.com/5.0/pusher.min.js"></script>
 				<script>
-					console.log(config.pusherKey);
 					var pusher = new Pusher(config.pusherKey, {
 						cluster: 'ap3',
 						forceTLS: true
