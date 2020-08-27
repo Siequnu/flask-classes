@@ -1,4 +1,10 @@
- {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+{% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+
+<!-- timePicker library -->
+<script type="text/javascript" nonce="{{ csp_nonce() }}"
+    src="/static/js/lib/jquery-timepicker/jquery.timepicker.min.js"></script>
+<link nonce="{{ csp_nonce() }}" rel="stylesheet" href="/static/js/lib/jquery-timepicker/jquery.timepicker.min.css" />
+
 <div class="container">
     <br>
     <div class="container">
@@ -6,28 +12,35 @@
             <div class="col-md-2">
                 <a href="{{url_for('classes.class_admin')}}" <button class="btn btn-light">
                     <i class="fa fa-chevron-left">
-        </i> Back
+                    </i> Back
                     </button>
                 </a>
             </div>
             <div class="col-md-10">
-
                 <h1>{{title}}</h1>
-
             </div>
         </div>
         <hr>
         <br>
-
         <div class="card bg-light mb-3" style="max-width: 25rem;">
             <div class="card-body">
-
-
-                {{ render_form(form) }}
+                <form method="post">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    {{ render_form(form) }}
+                </form>
             </div>
 
         </div>
     </div>
 </div>
+
+<script>
+    // Enable timepicker
+    $('#lesson_start_time, #lesson_end_time').timepicker({
+        'timeFormat': 'H:i',
+        'minTime': '07:00am',
+        'step': 15
+    });
+</script>
 
 {% endblock %}

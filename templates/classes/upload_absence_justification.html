@@ -2,18 +2,22 @@
 {% from 'bootstrap/form.html' import render_form %}
 {% block app_content %}
 <div class="container">
-<br>
-<div class="card bg-light mb-3" style="max-width: 40rem;">
-  <div class="card-body">
+  <br>
+  <div class="card bg-light mb-3" style="max-width: 40rem;">
+    <div class="card-body">
 
-    <h1>{{title}}</h1>
-    
-    <br><a href="{{url_for('classes.view_attendance_record')}}" <button class="btn btn-primary"><i class="fa fa-chevron-left"></i> Back</button></a>
-    <hr>
-    
-   {{ render_form(form) }}
-   </div>
-</div>
+      <h1>{{title}}</h1>
 
+      <br><a href="{{url_for('classes.view_attendance_record')}}" <button class="btn btn-primary"><i
+          class="fa fa-chevron-left"></i> Back</button></a>
+      <hr>
+
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        {{ render_form(form) }}
+      </form>
+    </div>
   </div>
+
+</div>
 {% endblock %}
