@@ -1,0 +1,137 @@
+{% extends "header.html" %}
+
+
+{% block app_content %}
+<link rel="stylesheet" href="/static/css/form-control-borderless.css">
+<div class="container">
+  <br>
+
+
+  {% block body %}
+
+  <div class="row">
+    <div class="col">
+      <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-toggle="modal"
+        data-target="#adminHelpModal">
+        <i class="fa fa-info"></i>
+      </button>
+      <h1><i class="fa fa-chalkboard-teacher"></i> Class ownership management</h1>
+    </div>
+  </div>
+
+    <!-- Help modal -->
+    <div class="modal fade" id="adminHelpModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <h1 class="display-5"><i class="fa fa-chalkboard-teacher"></i> Class ownership management</h1>
+            <p class="lead">In this section, you can choose which classes you view in the main interface.</p>
+            <hr class="my-4">
+            <p>As an admin, you can view any class and access all information associated with that class.</p>
+            <p>However, if you wish, you can attribute "ownership" of classes, if you wish not to see all classes in the Assignments or Library section, for example.</p>
+            <p>By using this feature, you can also focus the work of any secondary teaching or teaching assistant accounts.</p>
+            <p>If you enable this feature, you will see only the selected classes in the following sections of the website:</p>
+            <ul>
+              <li>Assignments</li>
+              <li>Library</li>
+              <li>Attendance</li>
+            </ul>
+            <p>Any peer review forms you create will still be globally available.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <br>
+  <div class="row justify-content-left">
+    <div class="col-12 col-md-10 col-lg-8">
+      <form class="card">
+        <div class="card-body row no-gutters align-items-center">
+          <div class="col-auto">
+            <i class="fas fa-search h4 text-body">
+            </i>
+          </div>
+          <!--end of col-->
+          <div class="col">
+            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search"
+              placeholder="Search for classes or teachers">
+          </div>
+          <!--end of col-->
+        </div>
+      </form>
+    </div>
+    <!--end of col-->
+  </div>
+
+  <div class="container">
+    <h2>Classes</h2>
+    <hr>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="table">
+          <table summary="List of classes" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Number</th>
+                <th>Label</th>
+                <th>Term</th>
+                <th>Year</th>
+                <th>Current teachers</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="searchableTable">
+              {% for class in classes_array %}
+              <tr>
+                <td>{{class.id}}</td>
+                <td>{{class.turma_number}}</td>
+                <td>{{class.turma_label}}</td>
+                <td>{{class.turma_term}}</td>
+                <td>{{class.turma_year}}</td>
+                <td>{% for teacher in class.current_teachers %}
+                  {{teacher.username}},
+                  {% endfor %}
+                </td>
+                <td>
+                  <div class="dropdown">
+                    <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Edit class teachers
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <h6 class="dropdown-header"><i class="fa fa-user-plus"></i> Add teachers</h6>
+                      {% for teacher in class.available_teachers %}
+                      <a class="dropdown-item" href="{{url_for('classes.assign_teacher_to_class', teacher_id = teacher.id, class_id = class.id)}}">{{teacher.username}}</a>
+                      {% endfor %}
+                      <div class="dropdown-divider"></div>
+                      <h6 class="dropdown-header"><i class="fa fa-user-minus"></i> Remove teachers</h6>
+                      {% for teacher in class.current_teachers %}
+                      <a class="dropdown-item" href="{{url_for('classes.remove_teacher_from_class', teacher_id = teacher.id, class_id = class.id)}}">{{teacher.username}}</a>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!--end of .table-responsive-->
+      </div>
+    </div>
+  </div>
+
+
+</div </div>
+
+{% endblock %}
+</div>
+{% endblock %}

@@ -15,7 +15,7 @@ class AttendanceCode (db.Model):
 	def __repr__(self):
 		return '<Attendance Code {}>'.format(self.code)
 	
-
+# Model used to store absence justifications, where a student can upload a file after being classed as absent in a class
 class AbsenceJustificationUpload(db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +28,39 @@ class AbsenceJustificationUpload(db.Model):
 	
 	def __repr__(self):
 		return '<Absence Justification Upload {}>'.format(self.original_filename)
+
+# Model used to store teacher-class relationships, whereby an admin can view all classes, 
+# but can choose only to see certain classes in the interface, i.e., the assignments or class attendance pages
+class ClassManagement(db.Model):
+	__table_args__ = {'sqlite_autoincrement': True}
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'))
+	
+	def __repr__(self):
+		return '<Class Management relationship {}>'.format(self.id)
+
+	def add (self):
+		db.session.add (self)
+		db.session.commit()
+
+	def save (self):
+		db.session.commit()
+
+	def delete (self):
+		db.session.delete(self)
+		db.session.commit()
+
+def get_teacher_classes_from_teacher_id (teacher_id):
+	classes_management_entries = ClassManagement.query.filter_by (user_id = teacher_id).all()
+	# If the teacher isn't an owner of any class, then show all classes
+	if classes_management_entries == []:
+		return Turma.query.all()
+	else:
+		turmas = []
+		for turma in classes_management_entries:
+			turmas.append (Turma.query.get (turma.turma_id))
+		return turmas
 
 def get_class_enrollment_from_class_id (class_id):
 	return db.session.query(

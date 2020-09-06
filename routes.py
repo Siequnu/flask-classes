@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
 from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificationUploadForm, ClassBulkEmailForm
-from app.classes.models import AbsenceJustificationUpload, AttendanceCode
+from app.classes.models import AbsenceJustificationUpload, AttendanceCode, ClassManagement
 
 from app.files import models
 from app.models import Turma, Lesson, LessonAttendance, User, Enrollment
@@ -64,10 +64,64 @@ def delete_class(turma_id):
 @login_required
 def class_admin():
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		classes_array = Turma.query.all()
+		classes_array = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
 		return render_template('classes/class_admin.html', title='Class admin', classes_array = classes_array)
 	abort (403)
-	
+
+
+# Page to assign classes to teachers
+@bp.route("/management")
+@login_required
+def class_ownership_management():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		classes_array = Turma.query.all()
+		teachers = User.query.filter_by (is_admin = True).all()
+		for turma in classes_array:
+			turma_dict = turma.__dict__
+			
+			current_teacher_assignments = ClassManagement.query.filter_by (turma_id = turma.id).all()
+			turma_dict['current_teachers'] = []
+			for teaching_assignment in current_teacher_assignments:
+				turma_dict['current_teachers'].append (User.query.get (teaching_assignment.user_id))
+
+			turma_dict['available_teachers'] = {teacher for teacher in teachers if teacher not in turma_dict['current_teachers']}
+		teachers = User.query.filter_by (is_admin = True).all()
+		return render_template('classes/class_ownership_management.html', title='Class ownership management', classes_array = classes_array, teachers = teachers)
+	abort (403)
+
+
+# Method to assign teachers to a class
+@bp.route("/management/add/<int:teacher_id>/to/<int:class_id>")
+@login_required
+def assign_teacher_to_class(teacher_id, class_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		teacher = User.query.get (teacher_id)
+		turma = Turma.query.get (class_id)
+		if teacher is None or turma is None:
+			flash ('Could not find this teacher or class', 'error')
+		teacher_ownership = ClassManagement (user_id = teacher_id, turma_id = class_id)
+		teacher_ownership.add ()
+		flash ('Added ' + teacher.username + ' to ' + turma.turma_label, 'success')
+		return redirect (url_for('classes.class_ownership_management'))
+	abort (403)
+
+
+# Method to remove teachers from a class
+@bp.route("/management/remove/<int:teacher_id>/from/<int:class_id>")
+@login_required
+def remove_teacher_from_class(teacher_id, class_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		teacher = User.query.get (teacher_id)
+		turma = Turma.query.get (class_id)
+		if teacher is None or turma is None:
+			flash ('Could not find this teacher or class', 'error')
+		teacher_ownership = ClassManagement.query.filter_by (user_id = teacher_id).filter_by (turma_id = class_id).all()
+		for item in teacher_ownership:
+			item.delete ()
+		flash ('Removed ' + teacher.username + ' from ' + turma.turma_label, 'success')
+		return redirect (url_for('classes.class_ownership_management'))
+	abort (403)
+
 	
 @bp.route("/attendance/<class_id>")
 @login_required
