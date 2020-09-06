@@ -1,7 +1,7 @@
 from flask import flash, current_app, send_from_directory
 from flask_login import current_user
 from app import db, executor
-from app.models import Turma, Enrollment, User, LessonAttendance, Lesson
+from app.models import Turma, Enrollment, User, LessonAttendance, Lesson, Assignment, ClassLibraryFile
 import app.assignments.models
 import pusher
 from datetime import datetime
@@ -220,4 +220,26 @@ def delete_all_user_attendance_records (user_id):
 	if attendances is not None:
 		for attendance in attendances:
 			db.session.delete(attendance)
+	db.session.commit()
+
+
+def delete_class_from_id (turma_id):
+	for assignment in Assignment.query.filter(Assignment.target_turma_id==turma_id).all():
+		app.assignments.models.delete_assignment_from_id (assignment.id)
+
+	ClassLibraryFile.query.filter(ClassLibraryFile.turma_id==turma_id).delete()
+	
+	Enrollment.query.filter(Enrollment.turma_id==turma_id).delete()
+	
+	ClassManagement.query.filter (ClassManagement.turma_id == turma_id).delete()
+
+	for lesson in Lesson.query.filter_by (turma_id = turma_id):
+		AttendanceCode.query.filter (AttendanceCode.lesson_id == lesson.id).delete ()
+		AbsenceJustificationUpload.query.filter (AbsenceJustificationUpload.lesson_id == lesson.id).delete ()
+		LessonAttendance.query.filter (LessonAttendance.lesson_id == lesson.id).delete ()
+		
+		db.session.delete(lesson)
+
+	Turma.query.filter(Turma.id==turma_id).delete()
+	
 	db.session.commit()

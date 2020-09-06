@@ -6,7 +6,8 @@ from app.classes.forms import TurmaCreationForm, LessonForm, AbsenceJustificatio
 from app.classes.models import AbsenceJustificationUpload, AttendanceCode, ClassManagement
 
 from app.files import models
-from app.models import Turma, Lesson, LessonAttendance, User, Enrollment
+from app.models import Turma, Lesson, LessonAttendance, User, Enrollment, Assignment, ClassLibraryFile
+from app.assignments.models import delete_assignment_from_id
 import app.models
 import app.email_model
 
@@ -54,9 +55,16 @@ def edit_class(turma_id):
 @login_required
 def delete_class(turma_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		Turma.delete_turma_from_id(turma_id)
+		turma = Turma.query.get (turma_id)
+		if turma is None:
+			flash ('Could not find a class with id ' + str(turma.id) + '.', 'error')
+		
+		# Delete all files and class management entries to do with this turma
+		app.classes.models.delete_class_from_id (turma_id)
+
 		flash('Class ' + str(turma_id) + ' has been deleted.', 'success')
 		return redirect(url_for('classes.class_admin'))		
+	
 	abort (403)
 	
 	
