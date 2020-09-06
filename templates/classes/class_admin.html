@@ -1,102 +1,178 @@
+{% extends "header.html" %}
 
-  {% extends "header.html" %}
-  
-  
-  {% block app_content %}
+
+{% block app_content %}
 <link rel="stylesheet" href="/static/css/form-control-borderless.css">
 <div class="container">
-<br>
+  <br>
 
 
-{% block body %}
+  {% block body %}
 
-   <div class="row">
-   <div class="col">
-    <h1><i class="fa fa-university"></i> Class admin</h1>
-    <hr>
-    <a href="{{url_for('classes.create_class')}}" <button class="btn btn-outline-success"><i class="fa fa-plus-circle"></i>  Create new class </button></a>
-    <a href="{{url_for('classes.view_all_absence_justifications')}}" <button class="btn btn-outline-info"><i class="fa fa-user-md"></i>  View absence justifications </button></a>
-    <a href="{{url_for('classes.view_open_attendance_codes')}}" <button class="btn btn-outline-primary"><i class="fa fa-eye"></i>  View open attendance codes </button></a>
-  </div>
-  </div>
-  
-<br>
-        <div class="row justify-content-left">
-            <div class="col-12 col-md-10 col-lg-8">
-                <form class="card">
-                    <div class="card-body row no-gutters align-items-center">
-                        <div class="col-auto">
-                            <i class="fas fa-search h4 text-body">
-          </i>
-                        </div>
-                        <!--end of col-->
-                        <div class="col">
-                            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search for students">
-                        </div>
-                        <!--end of col-->
-                    </div>
-                </form>
-            </div>
-            <!--end of col-->
-        </div>
-   
-   <div class="container">
-	
   <div class="row">
-    <div class="col-xs-12">
-      <div class="table">
-        <table summary="List of classes" class="table table-bordered table-hover">
-		  <thead>
-            <tr>
-              <th>ID</th>
-              <th>Number</th>
-              <th>Label</th>
-			  <th>Term</th>
-			  <th>Year</th>
-			  <th>Actions</th>
-            </tr>
-          </thead>
-		  <tbody id="searchableTable">
-			{% for class in classes_array %}
-            <tr>
-              <td>{{class.id}}</td>
-              <td>{{class.turma_number}}</td>
-              <td>{{class.turma_label}}</td>
-			  <td>{{class.turma_term}}</td>
-			  <td>{{class.turma_year}}</td>
-			  <td>
-          <a href="{{url_for('classes.class_attendance', class_id=class.id)}}" <button class="btn btn-info bln-block"><i class="fa fa-users"></i> Class attendance</button></a>
-          <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}" <button class="btn btn-primary bln-block"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
-          
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class ="fa fa-ellipsis-h">
-              </i>
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" href="{{url_for('classes.manage_enrollment', class_id=class.id)}}" <button class="btn btn-sm btn-secondary bln-block"><i class="fa fa-user-tag"></i> Manage enrollment</button></a>
-              <a class="dropdown-item" href="{{url_for('classes.export_class_data', class_id=class.id)}}" <button class="btn btn-sm btn-primary bln-block"><i class="fa fa-file-export"></i> Export class data</button></a>
-              <a class="dropdown-item" href="{{url_for('classes.edit_class', turma_id=class.id)}}" <button class="btn btn-sm btn-warning bln-block"><i class="fa fa-edit"></i> Edit class</button></a>
-              <a class="dropdown-item" href="{{url_for('classes.delete_class', turma_id=class.id)}}" <button class="btn btn-sm btn-danger bln-block"><i class="fa fa-trash-alt"></i> Delete</button></a>
-            </div>
-         
-        </td>
-            </tr>
-           {% endfor %}
-          </tbody>
-          <tfoot>
-            <tr>
-            </tr>
-          </tfoot>
-        </table>
-      </div><!--end of .table-responsive-->
+    <div class="col">
+      <h1><i class="fa fa-university"></i> Class admin</h1>
+      <hr>
+      <a href="{{url_for('classes.create_class')}}"><button class="btn btn-outline-success"><i
+            class="fa fa-plus-circle"></i> Create new class </button></a>
+      <a href="{{url_for('classes.view_all_absence_justifications')}}"><button class="btn btn-outline-info"><i
+            class="fa fa-user-md"></i> View absence justifications </button></a>
+      <a href="{{url_for('classes.view_open_attendance_codes')}}"><button class="btn btn-outline-primary"><i
+            class="fa fa-eye"></i> View open attendance codes </button></a>
+    </div>
+  </div>
+
+  <br>
+  <div class="row justify-content-left">
+    <div class="col-12 col-md-10 col-lg-8">
+      <form class="card">
+        <div class="card-body row no-gutters align-items-center">
+          <div class="col-auto">
+            <i class="fas fa-search h4 text-body">
+            </i>
+          </div>
+          <!--end of col-->
+          <div class="col">
+            <input id="myInput" class="form-control form-control-lg form-control-borderless" type="search"
+              placeholder="Search for students">
+          </div>
+          <!--end of col-->
+        </div>
+      </form>
+    </div>
+    <!--end of col-->
+  </div>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="table">
+          <table summary="List of classes" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Number</th>
+                <th>Label</th>
+                <th>Term</th>
+                <th>Year</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="searchableTable">
+              {% for class in classes_array %}
+              <tr>
+                <td>{{class.id}}</td>
+                <td>{{class.turma_number}}</td>
+                <td>{{class.turma_label}}</td>
+                <td>{{class.turma_term}}</td>
+                <td>{{class.turma_year}}</td>
+                <td>
+                  <a href="{{url_for('classes.class_attendance', class_id=class.id)}}" <button
+                    class="btn btn-info bln-block"><i class="fa fa-users"></i> Class attendance</button></a>
+                  <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}" <button
+                    class="btn btn-primary bln-block"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
+
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-h">
+                    </i>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item generateRegistrationLink" href="#" data-class-id="{{class.id}}"
+                      data-class-label="{{class.turma_label}}" data-toggle="modal"
+                      data-target="#classRegistrationLinkModal"><i class="fa fa-sign-in-alt"></i> Get sign-up
+                      link</a>
+                    <a class="dropdown-item" href="{{url_for('classes.manage_enrollment', class_id=class.id)}}"><i
+                        class="fa fa-user-tag"></i> Manage
+                      enrollment</a>
+                    <a class="dropdown-item" href="{{url_for('classes.export_class_data', class_id=class.id)}}"><i
+                        class="fa fa-file-export"></i> Export class
+                      data</a>
+                    <a class="dropdown-item" href="{{url_for('classes.edit_class', turma_id=class.id)}}"><i
+                        class="fa fa-edit"></i> Edit class</a>
+                    <a class="dropdown-item" href="{{url_for('classes.delete_class', turma_id=class.id)}}"><i
+                        class="fa fa-trash-alt"></i> Delete</a>
+                  </div>
+
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <!--end of .table-responsive-->
+      </div>
     </div>
   </div>
 </div>
-   
-  
-	</div
-  
+
+<!-- Class registration link modal -->
+<div class="modal fade" id="classRegistrationLinkModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-sign-in-alt"></i> Sign up link</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="classSignUpLinkText"></p>
+        <p>The sign up link for this class is:</p>
+        <input style="width: 100%" class="url"
+          placeholder="Javascript is disabled, and the link for this class can not be generated."></input>
+        <br><br>
+        <a class="js-textareacopybtn" href="#"><button class="btn btn-outline-secondary copyButton"><i class="fa fa-copy"></i> Copy
+            to clipboard </button></a>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  // Set a property from the Flask app config
+  var appUrl = '{{config['APP_URL']}}';
+
+  $(function () {
+    // Handler for clicking on registration link generator 
+    $('.generateRegistrationLink').on('click', function () {
+      // Update the text in the prompt
+      $('.url').val(appUrl + '/user/register/' + $(this).data('class-id'));
+      $('.classSignUpLinkText').text('Students clicking this link will only be able to sign up for ' + $(this).data('class-label'));
+
+      // Reset the state of the buttons
+      $('.copyButton').removeClass ('btn-success btn-error').addClass ('btn-outline-secondary');
+    });
+
+    // Handler for the copy to clipboard button
+    var copyTextareaBtn = document.querySelector('.js-textareacopybtn');
+
+    copyTextareaBtn.addEventListener('click', function (event) {
+      var copyTextarea = document.querySelector('.url');
+      copyTextarea.focus();
+      copyTextarea.select();
+
+      try {
+        var successful = document.execCommand('copy');
+        var msg = successful ? 'successful' : 'unsuccessful';
+        $('.copyButton').html('<i class="fa fa-clipboard-check"></i> Copied to the clipboard');
+        $('.copyButton').removeClass ('btn-outline-secondary').addClass ('btn-success');
+      } catch (err) {
+        $('.copyButton').html('<i class="fa fa-sad-tear"></i> Could not copy');
+        $('.copyButton').removeClass ('btn-outline-secondary').addClass ('btn-success');
+      }
+    });
+  }); 
+</script>
 
 {% endblock %}
 </div>
