@@ -12,24 +12,23 @@
       </div>
       <div class="col-md-10">
 
-        <h2>Class attendance - {{turma.turma_label}}</h2>
+      <h2><i class="fa fa-users"></i> Class attendance - {{turma.turma_label}}</h2>
 
       </div>
     </div>
     <hr>
-    <br>
-
-    <div class="card bg-light mb-3" style="max-width: 25rem;">
+    <div class="card bg-white mb-2" style="max-width: 25rem;">
       <div class="card-body">
         <h4><i class="fa fa-users"></i> {{turma.turma_label}}</h4>
         <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h4>
       </div>
       <div class="card-footer">
-        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-primary"><i
+        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-outline-success"><i
             class="fa fa-plus-circle"></i> Create new lesson </button></a>
         <br><br>
-        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-secondary"><i
-            class="fa fa-tasks"></i> View attendance </button></a>
+        <!--
+        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-outline-primary"><i
+            class="fa fa-tasks"></i> View attendance </button></a>-->
       </div>
     </div>
 
@@ -38,6 +37,11 @@
     <br>
     <h2>Lessons</h2>
     <br>
+
+    {% if lessons|length == 0 %}
+    <p>You haven't added any lessons for this class yet. Create a new lesson to start tracking attendance.</p>
+    {% endif %}
+
     {% for lesson in lessons %}
     <div class="card bg-light mb-3" style="max-width: 35rem;">
       <div class="card-body">
