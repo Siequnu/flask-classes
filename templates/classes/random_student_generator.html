@@ -1,0 +1,97 @@
+{% block app_content %}
+
+<link href="https://bootswatch.com/4/darkly/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<style>
+  body {
+    margin: 0;
+    background-image: url("/static/assets/theatre_background.jpg");
+    background-position: center;
+  }
+
+  .btn-group {
+    position: fixed;
+    bottom: 0;
+    margin: 10px;
+  }
+
+  .name {
+    font-weight: bold;
+    font-size: 9em;
+    width: 100%;
+    text-align: center;
+    padding-top: 25%;
+  }
+
+  .back {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+</style>
+
+<a class="back" href="{{url_for('classes.class_admin')}}"><button class="btn btn-lg btn-dark"><i
+      class="fa fa-chevron-left"></i></button></a>
+
+<div class="btn-group">
+  <button id="generate" type="button" class="btn btn-lg btn-dark">Generate</button>
+  <button type="button" class="btn btn-lg btn-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+    aria-haspopup="true" aria-expanded="false">
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <div class="dropdown-menu">
+    {% for turma in turmas %}
+    <a class="dropdown-item" data-turma-id="{{turma.id}}" href="#">{{turma.turma_label}}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="name"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="/static/js/lib/fontawesome-kit-7bd5544b77.js"></script>
+{{ bootstrap.load_js() }}
+
+<script>
+  var currentClass = null;
+
+  // Generate random student
+  $('#generate').on('click', function (event) {
+    fetch('/api/users/random/' + currentClass).then(res => res.json()).then(data => {
+      const studentNameElement = '.name';
+      $(studentNameElement).text(data.random_student);
+      animateCSS(studentNameElement, 'backInDown');
+    });
+  });
+
+  // On clicking a class, select that as the turma
+  $('.dropdown-item').on('click', function (event) {
+    currentClass = $(this).data('turma-id');
+  });
+
+  // On startup, set current class as the first one in the list
+  currentClass = $('.dropdown-item').first().data('turma-id');
+
+  const animateCSS = (element, animation, prefix = 'animate__') =>
+    // We create a Promise and return it
+    new Promise((resolve, reject) => {
+      const animationName = `${prefix}${animation}`;
+      const node = document.querySelector(element);
+
+      node.classList.add(`${prefix}animated`, animationName);
+
+      // When the animation ends, we clean the classes and resolve the Promise
+      function handleAnimationEnd() {
+        node.classList.remove(`${prefix}animated`, animationName);
+        node.removeEventListener('animationend', handleAnimationEnd);
+
+        resolve('Animation ended');
+      }
+
+      node.addEventListener('animationend', handleAnimationEnd);
+    });
+
+</script>
+
+{% endblock %}

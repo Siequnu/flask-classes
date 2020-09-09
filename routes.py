@@ -628,3 +628,10 @@ def send_bulk_email_to_class(class_id):
 							   form = form)
 	abort (403)
 	
+
+# Random student generator
+@bp.route("/student/random", methods=['GET'])
+def random_student_generator ():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		turmas = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
+		return render_template('classes/random_student_generator.html', turmas = turmas)
