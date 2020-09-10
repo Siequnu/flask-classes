@@ -139,7 +139,7 @@ def get_user_lessons_today_from_id (user_id):
 		for lesson in Lesson.query.filter_by (turma_id = turma.id): 
 			if lesson.date == date.today():
 				lessons_today.append ((lesson, turma))
-	print (lessons_today)
+				
 	return lessons_today
 
 def get_absence_justification (lesson_id, user_id):
