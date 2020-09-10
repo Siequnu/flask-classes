@@ -159,6 +159,9 @@ def create_lesson(class_id):
 		if form.validate_on_submit():
 			# Extract lesson data from pasted Zoom message
 			meeting_url = ''
+			meeting_id = ''
+			meeting_passcode = ''
+			
 			if form.online_lesson_invitation.data:
 				split = form.online_lesson_invitation.data.split('Meeting ID: ')
 				split = split[1].split ('\n')
@@ -171,8 +174,11 @@ def create_lesson(class_id):
 				meeting_url = meeting_url[0]
 			
 			# Overwrite auto-generated details if these were given
-			if form.online_lesson_code.data: meeting_passcode = form.online_lesson_code.data
-			if form.online_lesson_password.data: meeting_id = form.online_lesson_password.data
+			if form.online_lesson_code.data: 
+				meeting_passcode = form.online_lesson_code.data
+		
+			if form.online_lesson_password.data: 
+				meeting_id = form.online_lesson_password.data
 
 			lesson = Lesson(start_time = form.start_time.data,
 							end_time = form.end_time.data,
@@ -324,12 +330,18 @@ def view_all_absence_justifications():
 @login_required
 def enter_attendance_code():
 	# If admin, redirect to the class admin page
+	# #¡# This redirect isn't being used anymore, is it? Can delete admin if flag
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		return redirect(url_for('classes.class_admin'))
+	
+	# If the form has been posted (and we now have a value in the URL)
 	if request.values.get('attendance'):
 		return redirect(url_for('classes.register_attendance', attendance_code = request.values.get('attendance')))
+	
+	# Main loader
 	greeting = app.main.models.get_greeting()
-	return render_template('classes/enter_attendance_code.html', greeting = greeting)
+	lessons_today = app.classes.models.get_user_lessons_today_from_id (current_user.id)
+	return render_template('classes/enter_attendance_code.html', greeting = greeting, lessons_today = lessons_today)
 	
 @bp.route("/attendance/register/<attendance_code>/")
 @login_required

@@ -22,9 +22,11 @@
                         <h1 class="display-5"><i class="fa fa-user-check"></i> Attendance</h1>
                         <p class="lead">Easily track your attendance in classes.</p>
                         <hr class="my-4">
-                        <p>At the start of each class, your teacher will display a QR code, which you can scan and open in Safari or your mobile browser.</p>
+                        <p>At the start of each class, your teacher will display a QR code, which you can scan and open
+                            in Safari or your mobile browser.</p>
                         <p>If you can not scan the QR code, you can enter the class-code instead.</p>
-                        <p>In this section, you can also view your attendance record. If you miss a class, you should upload your justification here.</p>
+                        <p>In this section, you can also view your attendance record. If you miss a class, you should
+                            upload your justification here.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -52,7 +54,8 @@
                         </div>
 
                         <div class="col-auto">
-                            <button class="btn btn-lg btn-success" type="submit">I'm here! <i class="fa fa-chevron-right"></i></button>
+                            <button class="btn btn-lg btn-success" type="submit">I'm here! <i
+                                    class="fa fa-chevron-right"></i></button>
                         </div>
                         <!--end of col-->
                     </div>
@@ -64,11 +67,37 @@
             </div>
             <div class="col-md-12 col-lg-4 col-sm-12 text-centered ">
                 <br>
-                <p><a href="{{url_for('classes.view_attendance_record')}}" <button class="btn btn-lg btn-outline-primary"><i
-                            class="fa fa-user-check"></i> View your attendance record <i class="fa fa-chevron-right"></i></button></a></p>
+                <p><a href="{{url_for('classes.view_attendance_record')}}" <button
+                        class="btn btn-lg btn-outline-primary"><i class="fa fa-user-check"></i> View your attendance
+                        record <i class="fa fa-chevron-right"></i></button></a></p>
             </div>
         </div>
     </div>
+
+    {% if lessons_today %}
+    <br>
+    <h2>Lessons today</h2>
+    <hr>
+    {% for lesson, turma in lessons_today %}
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{turma.turma_label}}</h5>
+            <p class="card-text">{{lesson.start_time.strftime('%H:%M')}} - {{lesson.end_time.strftime('%H:%M')}}</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><a href="{{lesson.online_lesson_url}}" target="_blank"><button
+                            class="btn btn-lg btn-outline-success"><i class="fa fa-phone-volume"></i> Open class in Zoom
+                            <i class="fa fa-chevron-right"></i></button></a>
+                </li>
+                <li class="list-group-item">
+                    <h6 class="card-subtitle mt-2 text-muted text-center">{{lesson.online_lesson_code}} -
+                        {{lesson.online_lesson_password}}</h6>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
 
 </div>
 

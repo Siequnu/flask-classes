@@ -4,7 +4,7 @@ from app import db, executor
 from app.models import Turma, Enrollment, User, LessonAttendance, Lesson, Assignment, ClassLibraryFile
 import app.assignments.models
 import pusher
-from datetime import datetime
+from datetime import datetime, date
 
 class AttendanceCode (db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
@@ -132,6 +132,15 @@ def get_user_attendance_record_stats (user_id, percentage = False):
 			return int(float(record['lessons_attended']) * 100 / float(record['total_lessons_count']))
 	else: return record
 
+# Return a list of lessons that are today, but not yet finished
+def get_user_lessons_today_from_id (user_id):
+	lessons_today = []
+	for enrollment, user, turma in app.assignments.models.get_user_enrollment_from_id (user_id):
+		for lesson in Lesson.query.filter_by (turma_id = turma.id): 
+			if lesson.date == date.today():
+				lessons_today.append ((lesson, turma))
+	print (lessons_today)
+	return lessons_today
 
 def get_absence_justification (lesson_id, user_id):
 	justification = AbsenceJustificationUpload.query.filter(
