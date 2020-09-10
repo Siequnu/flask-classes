@@ -157,8 +157,28 @@ def create_lesson(class_id):
 						  date = datetime.datetime.now())
 		del form.edit
 		if form.validate_on_submit():
+			# Extract lesson data from pasted Zoom message
+			meeting_url = ''
+			if form.online_lesson_invitation.data:
+				split = form.online_lesson_invitation.data.split('Meeting ID: ')
+				split = split[1].split ('\n')
+				meeting_details = split[0].split(' Passcode: ')
+				meeting_id = meeting_details[0]
+				meeting_passcode = meeting_details[1]
+
+				meeting_url = form.online_lesson_invitation.data.split('Join Zoom Meeting ')
+				meeting_url = meeting_url[1].split('  Meeting ID:')
+				meeting_url = meeting_url[0]
+			
+			# Overwrite auto-generated details if these were given
+			if form.online_lesson_code.data: meeting_passcode = form.online_lesson_code.data
+			if form.online_lesson_password.data: meeting_id = form.online_lesson_password.data
+
 			lesson = Lesson(start_time = form.start_time.data,
 							end_time = form.end_time.data,
+							online_lesson_code = meeting_id,
+						  	online_lesson_password = meeting_passcode,
+							online_lesson_url = meeting_url,
 							date = form.date.data,
 							turma_id = turma.id)
 			db.session.add(lesson)
