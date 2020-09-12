@@ -25,7 +25,7 @@ def create_class():
 		form = forms.TurmaCreationForm()
 		del form.edit 
 		if form.validate_on_submit():
-			Turma.new_turma_from_form (form)
+			app.classes.models.new_turma_from_form (form)
 			flash('Class successfully created!', 'success')
 			return redirect(url_for('classes.class_admin'))
 		return render_template('classes/class_form.html', title='Create new class', form=form)

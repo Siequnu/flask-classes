@@ -51,6 +51,26 @@ class ClassManagement(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
+
+def new_turma_from_form (form):
+		new_turma = Turma(turma_number=form.turma_number.data, turma_label=form.turma_label.data,
+					turma_term=form.turma_term.data,
+					turma_year = form.turma_year.data,
+					lesson_start_time = form.lesson_start_time.data,
+					lesson_end_time = form.lesson_end_time.data)
+		
+		db.session.add(new_turma)
+		db.session.flush() # Access new_turma.id field from db
+
+		# Add the teacher as one of the class managers for this class
+		class_management = ClassManagement(
+			user_id = current_user.id,
+			turma_id = new_turma.id
+		)
+		class_management.add ()
+
+		db.session.commit()
+
 def get_teacher_classes_from_teacher_id (teacher_id):
 	classes_management_entries = ClassManagement.query.filter_by (user_id = teacher_id).all()
 	# If the teacher isn't an owner of any class, then show all classes
