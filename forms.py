@@ -5,12 +5,12 @@ from flask_wtf.file import FileField, FileRequired
 from app import db
 	
 class TurmaCreationForm(FlaskForm):
-	turma_number = StringField('Class number', validators=[DataRequired()])
-	turma_label = StringField('Class label', validators=[DataRequired()])
-	turma_term = StringField('Class term', validators=[DataRequired()])
-	turma_year = StringField('Class year', validators=[DataRequired()])
-	lesson_start_time = StringField('Class start time', validators=[DataRequired()])
-	lesson_end_time = StringField('Class end time', validators=[DataRequired()])
+	turma_number = StringField('Class number', validators=[DataRequired()], render_kw={"placeholder": "PS232"})
+	turma_label = StringField('Class label', validators=[DataRequired()], render_kw={"placeholder": "Public Speaking 2-3"})
+	turma_term = StringField('Class term', validators=[DataRequired()], render_kw={"placeholder": "Fall"})
+	turma_year = StringField('Class year', validators=[DataRequired()], render_kw={"placeholder": "2020"})
+	lesson_start_time = StringField('Class start time', validators=[DataRequired()], render_kw={"placeholder": "8:00"})
+	lesson_end_time = StringField('Class end time', validators=[DataRequired()], render_kw={"placeholder": "9:30"})
 	edit = SubmitField('Edit class')
 	submit = SubmitField('Create class')
 	
