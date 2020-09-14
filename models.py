@@ -73,7 +73,9 @@ def new_turma_from_form (form):
 
 def get_teacher_classes_from_teacher_id (teacher_id):
 	classes_management_entries = ClassManagement.query.filter_by (user_id = teacher_id).all()
+	
 	# If the teacher isn't an owner of any class, then show all classes
+	# This should not be the case for any non-superintendant user
 	if classes_management_entries == []:
 		return Turma.query.all()
 	else:
