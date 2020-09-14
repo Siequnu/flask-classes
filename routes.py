@@ -138,6 +138,15 @@ def class_attendance(class_id):
 		turma = Turma.query.get(class_id)
 		lessons_array = []
 		lessons = Lesson.query.filter(Lesson.turma_id == class_id).all()
+
+		# New lesson form (embedded in modal)
+		form = LessonForm (
+			start_time = turma.lesson_start_time,
+			end_time = turma.lesson_end_time,
+			date = datetime.datetime.now()
+		)
+		del form.edit
+		
 		for lesson in lessons:
 			lesson_dict = lesson.__dict__
 			lesson_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson.id)
@@ -148,7 +157,8 @@ def class_attendance(class_id):
 			title='Class attendance', 
 			turma = turma, 
 			lessons = lessons_array,
-			date = datetime.datetime.now())
+			date = datetime.datetime.now(),
+			form = form)
 	abort (403)
 	
 	
@@ -206,16 +216,16 @@ def delete_lesson(lesson_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		try:
 			# Delete all attendance for the lesson
-			lesson_attendance = LessonAttendance.query.filter(LessonAttendance.lesson_id == lesson_id)
-			if lesson_attendance is not None:
-				for attendance in lesson_attendance:
-					db.session.delete(attendance)			
+			for attendance in LessonAttendance.query.filter(LessonAttendance.lesson_id == lesson_id):
+				db.session.delete(attendance)			
 			
 			# Delete any open registration codes
-			registration_codes = AttendanceCode.query.filter(AttendanceCode.lesson_id == lesson_id)
-			if registration_codes is not None:
-				for registration_code in registration_codes:
-					db.session.delete(registration_code)	
+			for registration_code in AttendanceCode.query.filter(AttendanceCode.lesson_id == lesson_id):
+				db.session.delete(registration_code)	
+
+			# Delete any uploaded absence justification
+			for absence_justification_upload in AbsenceJustificationUpload.query.filter_by (lesson_id = lesson_id).all():
+				db.session.delete (absence_justification_upload)
 			
 			# Delete the lesson
 			lesson = Lesson.query.get(lesson_id)

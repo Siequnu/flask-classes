@@ -1,12 +1,40 @@
-{% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+{% extends "header.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/form.html' import render_field %}
+{% block app_content %}
 <div class="container">
   <br>
+
+
+  <!-- Help modal -->
+  <div class="modal fade" id="lessonCreationHelpModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h1 class="display-5"><i class="fa fa-chalkboard-teacher"></i> Create a lesson</h1>
+          <p class="lead">This form is used to create a new lesson for a selected class.</p>
+          <hr class="my-4">
+          <p>The lesson start and end times are set to the default for this class, but can be changed. The class sign-up
+            code automatically closes at the end of the lesson time.</p>
+          <p>If you have a Zoom invitation text, paste it into the Zoom lesson invitation field. The URL, meeting room
+            ID and password will automatically be parsed from the invitation.</p>
+          <p>If you are using an alternative service, then you can include an online lesson code and password.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal"
+            data-target="#createNewLessonModal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="container">
     <div class="row">
       <div class="col-md-2">
-        <a href="{{url_for('classes.class_admin')}}" <button class="btn btn-light">
-          <i class="fa fa-chevron-left">
-          </i> Back
+        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light">
+            <i class="fa fa-chevron-left">
+            </i> Back
           </button>
         </a>
       </div>
@@ -23,16 +51,15 @@
         <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h4>
       </div>
       <div class="card-footer">
-        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button
-          class="btn btn-lg btn-outline-success"><i class="fa fa-plus-circle"></i> Create new lesson </button></a>
+        <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" class="createNewLessonModal"><button
+            class="btn btn-lg btn-outline-success" data-toggle="modal" data-target="#createNewLessonModal"><i
+              class="fa fa-plus-circle"></i> Create new lesson </button></a>
         <br><br>
         <!--
         <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-outline-primary"><i
             class="fa fa-tasks"></i> View attendance </button></a>-->
       </div>
     </div>
-
-
 
     <br>
     <h2>Lessons</h2>
@@ -57,8 +84,6 @@
               </h3>
             </div>
             <div class="col-8">
-
-
               <h5><i class="fa fa-calendar-day"></i> {{lesson.date}}</h5>
               <p><i class="fa fa-clock"></i>
                 {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</p>
@@ -67,12 +92,12 @@
         </div>
       </div>
       <div class="card-footer">
-        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}" <button class="btn btn-info"><i
-            class="fa fa-toggle-on"></i> Open attendance </button></a>
-        <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}" <button
-          class="btn btn-outline-secondary"><i class="fa fa-street-view"></i> View attendance </button></a>
-        <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}" <button class="btn btn-outline-warning"><i
-            class="fa fa-trash-alt"></i> Delete lesson </button></a>
+        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info"><i
+              class="fa fa-toggle-on"></i> Open attendance </button></a>
+        <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
+            class="btn btn-outline-secondary"><i class="fa fa-street-view"></i> View attendance </button></a>
+        <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button class="btn btn-outline-warning"><i
+              class="fa fa-trash-alt"></i> Delete lesson </button></a>
       </div>
       {% if lesson.online_lesson_code %}
       <div class="card-footer">
@@ -83,16 +108,84 @@
           </div>
           <div class="col-6 align-self-right">
             <a href="{{lesson.online_lesson_url}}" target="_blank"><button class="btn btn-outline-success"><i
-              class="fa fa-phone-volume"></i> Open class in Zoom
-            <i class="fa fa-chevron-right"></i></button></a>
+                  class="fa fa-phone-volume"></i> Open class in Zoom
+                <i class="fa fa-chevron-right"></i></button></a>
           </div>
         </div>
       </div>
       {% endif %}
     </div>
     {% endfor %}
-
   </div>
 </div>
+
+
+
+<!-- New lesson creation modal -->
+<div class="modal fade" id="createNewLessonModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-dismiss="modal"
+          data-toggle="modal" data-target="#lessonCreationHelpModal">
+          <i class="fa fa-info"></i>
+        </button>
+        <h1 class="display-5"><i class="fa fa-chalkboard-teacher"></i> Create a lesson</h1>
+        <hr class="my-4">
+        <form method="post" action="{{url_for('classes.create_lesson', class_id = turma.id)}}" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          {{ render_field(form.start_time) }}
+          {{ render_field(form.end_time) }}
+          {{ render_field(form.online_lesson_invitation) }}
+          {{ render_field(form.online_lesson_code) }}
+          {{ render_field(form.online_lesson_password) }}
+          {{ render_field(form.date) }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        {{ render_field(form.new_lesson_form_submit, button_style="success") }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Parse Zoom pasted invitation lead -->
+<script>
+  // Hide extra online lesson fields
+  $('#online_lesson_code').parent().hide();
+  $('#online_lesson_password').parent().hide();
+
+  // Handler for submit
+  $('#online_lesson_invitation').on('paste', function (e) {
+    var pasteData = e.originalEvent.clipboardData.getData('text');
+    var data = { zoomInvitation: pasteData };
+    const csrftoken = Cookies.get('_csrf_token');
+
+    fetch('/api/classes/parse/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify(data)
+    }).then(res => res.json()).then(data => {
+      if (!data.hasOwnProperty('error')) {
+        $('#online_lesson_code').val(data.meeting_id).parent().slideToggle();
+        $('#online_lesson_password').val(data.meeting_passcode).parent().slideToggle();
+      }
+    });
+  });
+</script>
+
+<!-- New library upload button script-->
+<script>
+  $('.createNewLessonModal').on('click', function (event) {
+    event.preventDefault();
+  });
+</script>
+
+
+
 
 {% endblock %}

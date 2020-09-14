@@ -22,7 +22,7 @@ class LessonForm(FlaskForm):
 	online_lesson_password = StringField('Online lesson password')
 	date = DateField('Class date', validators=[DataRequired()])
 	edit = SubmitField('Edit lesson')
-	submit = SubmitField('Create lesson')
+	new_lesson_form_submit = SubmitField('Create lesson')
 	
 	
 class AbsenceJustificationUploadForm(FlaskForm):
