@@ -1,4 +1,24 @@
 {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
+  
+  <!-- Help modal -->
+  <div class="modal fade" id="adminHelpModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h1 class="display-5"><i class="fa fa-chalkboard-teacher"></i> Create a lesson</h1>
+          <p class="lead">This form is used to create a new lesson for a selected class.</p>
+          <hr class="my-4">
+          <p>The lesson start and end times are set to the default for this class, but can be changed. The class sign-up code automatically closes at the end of the lesson time.</p>
+          <p>If you have a Zoom invitation text, paste it into the Zoom lesson invitation field. The URL, meeting room ID and password will automatically be parsed from the invitation.</p>
+          <p>If you are using an alternative service, then you can include an online lesson code and password.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="container">
     <br>
     <div class="container">
@@ -11,9 +31,11 @@
                 </a>
             </div>
             <div class="col-md-10">
-
-                <h1>{{title}}</h1>
-
+                <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-toggle="modal"
+                data-target="#adminHelpModal">
+                <i class="fa fa-info"></i>
+              </button>
+                <h1><i class="fa fa-chalkboard-teacher"></i> {{title}}</h1>
             </div>
         </div>
         <hr>
@@ -28,11 +50,46 @@
                 <form method="post">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     {{ render_form(form) }}
-                  </form>
+                </form>
             </div>
 
         </div>
     </div>
 </div>
+
+
+<script>
+    $('#online_lesson_invitation').on('paste', function (e) {
+        var pasteData = e.originalEvent.clipboardData.getData('text');
+        var data = {zoomInvitation: pasteData};
+	    const csrftoken = Cookies.get('_csrf_token');
+
+        fetch('/api/classes/parse/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify (data)
+        }).then(res => res.json()).then(data => {
+            console.log (data);
+            if (!data.hasOwnProperty ('error')) {
+                $('#online_lesson_code').val (data.meeting_id);
+                $('#online_lesson_password').val (data.meeting_passcode);
+            }
+        });
+        /*
+        $.ajax({
+            type: "POST",
+            url: "/api/classes/parse/",
+            data: {zoomInvitation: pasteData},
+            dataType: "application/json",
+            success: function (response) {
+                console.log (response);
+            }
+        });
+        */
+    });
+</script>
 
 {% endblock %}
