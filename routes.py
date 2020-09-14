@@ -143,7 +143,12 @@ def class_attendance(class_id):
 			lesson_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson.id)
 			lessons_array.append(lesson_dict)
 			
-		return render_template('classes/class_attendance.html', title='Class attendance', turma = turma, lessons = lessons_array)
+		return render_template(
+			'classes/class_attendance.html', 
+			title='Class attendance', 
+			turma = turma, 
+			lessons = lessons_array,
+			date = datetime.datetime.now())
 	abort (403)
 	
 	
@@ -175,10 +180,10 @@ def create_lesson(class_id):
 			
 			# Overwrite auto-generated details if these were given
 			if form.online_lesson_code.data: 
-				meeting_passcode = form.online_lesson_code.data
+				meeting_id = form.online_lesson_code.data
 		
 			if form.online_lesson_password.data: 
-				meeting_id = form.online_lesson_password.data
+				meeting_passcode = form.online_lesson_password.data
 
 			lesson = Lesson(start_time = form.start_time.data,
 							end_time = form.end_time.data,
