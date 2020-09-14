@@ -72,23 +72,11 @@
             },
             body: JSON.stringify (data)
         }).then(res => res.json()).then(data => {
-            console.log (data);
             if (!data.hasOwnProperty ('error')) {
                 $('#online_lesson_code').val (data.meeting_id);
                 $('#online_lesson_password').val (data.meeting_passcode);
             }
         });
-        /*
-        $.ajax({
-            type: "POST",
-            url: "/api/classes/parse/",
-            data: {zoomInvitation: pasteData},
-            dataType: "application/json",
-            success: function (response) {
-                console.log (response);
-            }
-        });
-        */
     });
 </script>
 
