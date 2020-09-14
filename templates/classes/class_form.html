@@ -1,16 +1,15 @@
 {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
 
 <!-- timePicker library -->
-<script type="text/javascript"  
-    src="/static/js/lib/jquery-timepicker/jquery.timepicker.min.js"></script>
-<link   rel="stylesheet" href="/static/js/lib/jquery-timepicker/jquery.timepicker.min.css" />
+<script type="text/javascript" src="/static/js/lib/jquery-timepicker/jquery.timepicker.min.js"></script>
+<link rel="stylesheet" href="/static/js/lib/jquery-timepicker/jquery.timepicker.min.css" />
 
 <div class="container">
     <br>
     <div class="container">
         <div class="row">
             <div class="col-md-2">
-                <a href="{{url_for('classes.class_admin')}}" <button class="btn btn-light">
+                <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light">
                     <i class="fa fa-chevron-left">
                     </i> Back
                     </button>

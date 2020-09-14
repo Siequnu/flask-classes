@@ -2,10 +2,14 @@
 {% from 'bootstrap/form.html' import render_form %}
 {% from 'bootstrap/form.html' import render_field %}
 {% block app_content %}
+
+
+<!-- timePicker library -->
+<script type="text/javascript" src="/static/js/lib/jquery-timepicker/jquery.timepicker.min.js"></script>
+<link rel="stylesheet" href="/static/js/lib/jquery-timepicker/jquery.timepicker.min.css" />
+
 <div class="container">
   <br>
-
-
   <!-- Help modal -->
   <div class="modal fade" id="lessonCreationHelpModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -153,42 +157,52 @@
   </div>
 </div>
 
+<script>
+  // Enable timepicker
+  $('#start_time, #end_time').timepicker({
+      'timeFormat': 'H:i',
+      'minTime': '07:00am',
+      'step': 15
+  });
+</script>
+
 <!-- Parse Zoom pasted invitation lead -->
 <script>
   $(function () {
+
     // Hide extra online lesson fields
-  $('#online_lesson_code').parent().hide();
-  $('#online_lesson_password').parent().hide();
+    $('#online_lesson_code').parent().hide();
+    $('#online_lesson_password').parent().hide();
 
-  // Display them on request
-  $('.addMeetingDetails').on('click', function () {
-    $('#online_lesson_code').parent().slideToggle();
-    $('#online_lesson_password').parent().slideToggle();
-    $(this).hide('slow');
-  });
+    // Display them on request
+    $('.addMeetingDetails').on('click', function () {
+      $('#online_lesson_code').parent().slideToggle();
+      $('#online_lesson_password').parent().slideToggle();
+      $(this).hide('slow');
+    });
 
-  // Handler for submit
-  $('#online_lesson_invitation').on('paste', function (e) {
-    var pasteData = e.originalEvent.clipboardData.getData('text');
-    var data = { zoomInvitation: pasteData };
-    const csrftoken = Cookies.get('_csrf_token');
+    // Handler for submit
+    $('#online_lesson_invitation').on('paste', function (e) {
+      var pasteData = e.originalEvent.clipboardData.getData('text');
+      var data = { zoomInvitation: pasteData };
+      const csrftoken = Cookies.get('_csrf_token');
 
-    fetch('/api/classes/parse/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify(data)
-    }).then(res => res.json()).then(data => {
-      if (!data.hasOwnProperty('error')) {
-        $('#online_lesson_code').val(data.meeting_id).parent().slideToggle();
-        $('#online_lesson_password').val(data.meeting_passcode).parent().slideToggle();
-        $('.addMeetingDetails').hide ();
-      }
+      fetch('/api/classes/parse/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(data => {
+        if (!data.hasOwnProperty('error')) {
+          $('#online_lesson_code').val(data.meeting_id).parent().slideToggle();
+          $('#online_lesson_password').val(data.meeting_passcode).parent().slideToggle();
+          $('.addMeetingDetails').hide();
+        }
+      });
     });
   });
-});
 </script>
 
 <!-- New library upload button script-->

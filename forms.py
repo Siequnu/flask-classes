@@ -17,7 +17,7 @@ class TurmaCreationForm(FlaskForm):
 class LessonForm(FlaskForm):
 	start_time = StringField('Class start time', validators=[DataRequired()])
 	end_time = StringField('Class end time', validators=[DataRequired()])
-	online_lesson_invitation = StringField('Zoom online lesson invitation', render_kw={"placeholder": "Copy Zoom invitation here"})
+	online_lesson_invitation = StringField('Zoom online lesson invitation', render_kw={"placeholder": "Paste Zoom invitation here"})
 	online_lesson_code = StringField('Online lesson code')
 	online_lesson_password = StringField('Online lesson password')
 	date = DateField('Class date', validators=[DataRequired()])
