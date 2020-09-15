@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request, abort, current_app, session, Response
+from flask import render_template, flash, redirect, url_for, request, abort, current_app, session, Response, jsonify
 from flask_login import current_user, login_required
 
 from app.classes import bp, models, forms
@@ -17,6 +17,41 @@ import datetime, uuid, random
 
 import flask_excel as excel
 import pusher
+
+## API routes
+
+# Parse a Zoom URL code
+# Returns False if parsing fails
+@bp.route("/api/parse/", methods = ['POST'])
+@login_required
+def parse_zoom_invitation ():
+	if app.models.is_admin (current_user.username):
+		return jsonify (parse_zoom_invitation_helper (request.json['zoomInvitation']))
+	abort (403)
+
+
+# API helpers
+# Function to extract 
+def parse_zoom_invitation_helper (zoom_invitation):
+	try:
+		# Extract lesson data from pasted Zoom message	
+		split = zoom_invitation.split('Meeting ID: ')
+		meeting_details = split[1].split('\nPasscode: ')
+		meeting_id = meeting_details[0]
+		meeting_passcode = meeting_details[1]
+
+		meeting_url = zoom_invitation.split('Join Zoom Meeting\n')
+		meeting_url = meeting_url[1].split('\n\nMeeting ID:')
+		meeting_url = meeting_url[0]
+
+		return {
+			'meeting_url': meeting_url,
+			'meeting_id': meeting_id,
+			'meeting_passcode': meeting_passcode
+		}
+	except:
+		return {'error': 'Could not process the data.'}
+
 
 @bp.route("/create", methods=['GET', 'POST'])
 @login_required
