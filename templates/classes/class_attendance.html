@@ -205,6 +205,7 @@
         body: JSON.stringify(data)
       }).then(res => res.json()).then(data => {
         if (!data.hasOwnProperty('error')) {
+          console.log (data);
           $('#online_lesson_code').val(data.meeting_id).parent().slideToggle();
           $('#online_lesson_password').val(data.meeting_passcode).parent().slideToggle();
           $('.addMeetingDetails').hide();

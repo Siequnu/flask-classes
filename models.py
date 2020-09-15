@@ -77,6 +77,39 @@ def new_turma_from_form(form):
 	db.session.commit()
 
 
+# Function to extract data from a Zoom invitation link
+def parse_zoom_invitation_helper (zoom_invitation):
+	
+	try:
+		# Meeting ID and passcode
+		split = zoom_invitation.split('Meeting ID: ')
+		meeting_details = split[1].split('\nPasscode: ')
+		meeting_id = meeting_details[0]
+		meeting_passcode = meeting_details[1]
+
+		# Meeting URL
+		meeting_url = zoom_invitation.split('Join Zoom Meeting\n')
+		meeting_url = meeting_url[1].split('\n\nMeeting ID:')
+		meeting_url = meeting_url[0]
+
+		# Meeting date
+		meeting_datetime_str = zoom_invitation.split('Time: ')
+		meeting_datetime_str = meeting_datetime_str[1] # i.e., the second part of the split string
+		meeting_datetime_str = meeting_datetime_str[0:21].strip() # i.e. the first characters with datetime
+		meeting_datetime_object = datetime.strptime(meeting_datetime_str, '%b %d, %Y %I:%M %p')
+		
+		return {
+			'meeting_url': meeting_url,
+			'meeting_id': meeting_id,
+			'meeting_passcode': meeting_passcode,
+			'meeting_datetime_object': meeting_datetime_object
+		}
+		
+	except:
+		return {'error': 'Could not process the data.'}
+	
+
+
 def get_teacher_classes_from_teacher_id(teacher_id):
 	# If the teacher isn't an owner of any class, then show all classes
 	# This should not be the case for any non-superintendant user
