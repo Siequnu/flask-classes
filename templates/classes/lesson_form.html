@@ -58,9 +58,25 @@
 </div>
 
 
+<!-- Parse Zoom pasted invitation lead -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.35/dayjs.min.js" integrity="sha512-nG86d7fodOg4f3fZF796WwIj6WwxdWI2DCXCarXZU05/UNHzC2CHQkD6dNdj6Ahaurrbed66rsvTt6r58RQ5WA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.8.35/plugin/customParseFormat.min.js" integrity="sha512-HVENSZfi5gX0CYmasxVKQ3imukvv6ZJVErgR/hj3B2+XeddOc0D0juWiCVXRiqhDzEp/UGeRNvRHH+y9VLApyg==" crossorigin="anonymous"></script>
+<script>dayjs.extend(window.customParseFormat.min.js)</script>
+
 <script>
-    // A slightly different version to the class attendance modal dialog
-    // #¡# Potential candidate for refactoring
+  $(function () {
+
+    // Hide extra online lesson fields
+    $('#online_lesson_code').parent().hide();
+    $('#online_lesson_password').parent().hide();
+
+    // Display them on request
+    $('.addMeetingDetails').on('click', function () {
+      $('#online_lesson_code').parent().slideToggle();
+      $('#online_lesson_password').parent().slideToggle();
+      $(this).hide('slow');
+    });
+
     // Handler for submit
     $('#online_lesson_invitation').on('paste', function (e) {
       var pasteData = e.originalEvent.clipboardData.getData('text');
@@ -76,12 +92,18 @@
         body: JSON.stringify(data)
       }).then(res => res.json()).then(data => {
         if (!data.hasOwnProperty('error')) {
-          $('#online_lesson_code').val(data.meeting_id);
-          $('#online_lesson_password').val(data.meeting_passcode);
+          $('#online_lesson_code').val(data.meeting_id).parent().show();
+          $('#online_lesson_password').val(data.meeting_passcode).parent().show();
+
+          var datetime_object = dayjs(data.meeting_datetime_object, 'MMM DD, YYYY hh:mm A');
+          var class_date = dayjs(datetime_object).format('YYYY-MM-DD');
+          $('#date').val (class_date);
+
           $('.addMeetingDetails').hide();
         }
       });
     });
+  });
 </script>
 
 {% endblock %}
