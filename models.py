@@ -6,16 +6,19 @@ import app.assignments.models
 import pusher
 from datetime import datetime, date
 
+
 class AttendanceCode (db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)
 	code = db.Column(db.String(140))
 	lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
-	
+
 	def __repr__(self):
 		return '<Attendance Code {}>'.format(self.code)
-	
+
 # Model used to store absence justifications, where a student can upload a file after being classed as absent in a class
+
+
 class AbsenceJustificationUpload(db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)
@@ -25,68 +28,86 @@ class AbsenceJustificationUpload(db.Model):
 	timestamp = db.Column(db.DateTime, default=datetime.now())
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
-	
+
 	def __repr__(self):
 		return '<Absence Justification Upload {}>'.format(self.original_filename)
 
-# Model used to store teacher-class relationships, whereby an admin can view all classes, 
+# Model used to store teacher-class relationships, whereby an admin can view all classes,
 # but can choose only to see certain classes in the interface, i.e., the assignments or class attendance pages
+
+
 class ClassManagement(db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'))
-	
+
 	def __repr__(self):
 		return '<Class Management relationship {}>'.format(self.id)
 
-	def add (self):
-		db.session.add (self)
+	def add(self):
+		db.session.add(self)
 		db.session.commit()
 
-	def save (self):
+	def save(self):
 		db.session.commit()
 
-	def delete (self):
+	def delete(self):
 		db.session.delete(self)
 		db.session.commit()
 
 
-def new_turma_from_form (form):
-		new_turma = Turma(turma_number=form.turma_number.data, turma_label=form.turma_label.data,
-					turma_term=form.turma_term.data,
-					turma_year = form.turma_year.data,
-					lesson_start_time = form.lesson_start_time.data,
-					lesson_end_time = form.lesson_end_time.data)
-		
-		db.session.add(new_turma)
-		db.session.flush() # Access new_turma.id field from db
+def new_turma_from_form(form):
+	new_turma = Turma(turma_number=form.turma_number.data, turma_label=form.turma_label.data,
+                   turma_term=form.turma_term.data,
+                   turma_year=form.turma_year.data,
+                   lesson_start_time=form.lesson_start_time.data,
+                   lesson_end_time=form.lesson_end_time.data)
 
-		# Add the teacher as one of the class managers for this class
-		class_management = ClassManagement(
-			user_id = current_user.id,
-			turma_id = new_turma.id
-		)
-		class_management.add ()
+	db.session.add(new_turma)
+	db.session.flush()  # Access new_turma.id field from db
 
-		db.session.commit()
+	# Add the teacher as one of the class managers for this class
+	class_management = ClassManagement(
+            user_id=current_user.id,
+            turma_id=new_turma.id
+        )
+	class_management.add()
 
-def get_teacher_classes_from_teacher_id (teacher_id):	
+	db.session.commit()
+
+
+def get_teacher_classes_from_teacher_id(teacher_id):
 	# If the teacher isn't an owner of any class, then show all classes
 	# This should not be the case for any non-superintendant user
 	turmas = []
-	for turma in ClassManagement.query.filter_by (user_id = teacher_id).all():
-		turmas.append (Turma.query.get (turma.turma_id))
+	for turma in ClassManagement.query.filter_by(user_id=teacher_id).all():
+		turmas.append(Turma.query.get(turma.turma_id))
 	return turmas
 
-def get_class_enrollment_from_class_id (class_id):
+
+def check_if_student_is_in_teachers_class(student_id, teacher_id):
+	teacher_turmas = []
+	for turma in get_teacher_classes_from_teacher_id(teacher_id):
+		teacher_turmas.append(turma.id)
+
+	for enrollment in Enrollment.query.filter_by(user_id=student_id).all():
+		if enrollment.turma_id in teacher_turmas:
+			return True
+
+	# If no turmas matched, return false
+	return False
+
+
+def get_class_enrollment_from_class_id(class_id):
 	return db.session.query(
 		Enrollment, Turma, User).join(
-		Turma, Enrollment.turma_id==Turma.id).join(
-		User, Enrollment.user_id==User.id).filter(
+		Turma, Enrollment.turma_id == Turma.id).join(
+		User, Enrollment.user_id == User.id).filter(
 		Enrollment.turma_id == class_id).all()
 
-def get_attendance_status (lesson_id, user_id):
+
+def get_attendance_status(lesson_id, user_id):
 	attendance = LessonAttendance.query.filter(
 		LessonAttendance.lesson_id == lesson_id).filter(
 		LessonAttendance.user_id == user_id).first()
@@ -94,72 +115,79 @@ def get_attendance_status (lesson_id, user_id):
 		return attendance
 	else:
 		return False
-	
 
-def get_lesson_attendance_stats (lesson_id):
+
+def get_lesson_attendance_stats(lesson_id):
 	record = {}
 	lesson = Lesson.query.get(lesson_id)
 	turma = Turma.query.get(lesson.turma_id)
-	students_in_class = Enrollment.query.filter(Enrollment.turma_id == turma.id).all()
+	students_in_class = Enrollment.query.filter(
+		Enrollment.turma_id == turma.id).all()
 	record['students_in_class'] = len(students_in_class)
-	
+
 	attendance = LessonAttendance.query.filter(
 		LessonAttendance.lesson_id == lesson_id).all()
 	record['attendance'] = len(attendance)
-	
+
 	return record
-	
-def get_attendance_record (user_id):
-	user_enrollment = app.assignments.models.get_user_enrollment_from_id (user_id)
+
+
+def get_attendance_record(user_id):
+	user_enrollment = app.assignments.models.get_user_enrollment_from_id(user_id)
 	attendance_record = []
 	for enrollment, user, turma in user_enrollment:
 		# Get list of lessons for each class
 		lessons = Lesson.query.filter(Lesson.turma_id == turma.id)
-		
+
 		# For each lesson, check if the user was present or not
 		lesson_attendance = []
 		for lesson in lessons:
 			lesson_dict = lesson.__dict__
 			lesson_dict['attended'] = get_attendance_status(lesson.id, user_id)
-			lesson_dict['justification'] = get_absence_justification (lesson.id, user.id)
+			lesson_dict['justification'] = get_absence_justification(lesson.id, user.id)
 			lesson_attendance.append(lesson_dict)
-		
+
 		attendance_record.append((user, turma, lesson_attendance))
-			
+
 	return attendance_record
 
-def get_user_attendance_record_stats (user_id, percentage = False):
+
+def get_user_attendance_record_stats(user_id, percentage=False):
 	record = {}
 	record['total_lessons_count'] = 0
 	record['lessons_attended'] = 0
-	
-	user_enrollment = app.assignments.models.get_user_enrollment_from_id (user_id)
-	for enrollment, user, turma in user_enrollment:	
+
+	user_enrollment = app.assignments.models.get_user_enrollment_from_id(user_id)
+	for enrollment, user, turma in user_enrollment:
 		lessons = Lesson.query.filter(Lesson.turma_id == turma.id)
 		record['total_lessons_count'] += lessons.count()
-	
+
 		for lesson in lessons:
 			if get_attendance_status(lesson.id, user_id) is not False:
 				record['lessons_attended'] += 1
-	
+
 	if percentage:
 		if record['total_lessons_count'] == 0:
 			return 100
 		else:
 			return int(float(record['lessons_attended']) * 100 / float(record['total_lessons_count']))
-	else: return record
+	else:
+		return record
 
 # Return a list of lessons that are today, but not yet finished
-def get_user_lessons_today_from_id (user_id):
+
+
+def get_user_lessons_today_from_id(user_id):
 	lessons_today = []
-	for enrollment, user, turma in app.assignments.models.get_user_enrollment_from_id (user_id):
-		for lesson in Lesson.query.filter_by (turma_id = turma.id): 
+	for enrollment, user, turma in app.assignments.models.get_user_enrollment_from_id(user_id):
+		for lesson in Lesson.query.filter_by(turma_id=turma.id):
 			if lesson.date == date.today():
-				lessons_today.append ((lesson, turma))
-				
+				lessons_today.append((lesson, turma))
+
 	return lessons_today
 
-def get_absence_justification (lesson_id, user_id):
+
+def get_absence_justification(lesson_id, user_id):
 	justification = AbsenceJustificationUpload.query.filter(
 		AbsenceJustificationUpload.lesson_id == lesson_id).filter(
 		AbsenceJustificationUpload.user_id == user_id).first()
@@ -168,79 +196,92 @@ def get_absence_justification (lesson_id, user_id):
 	else:
 		return False
 
+
 def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
 	if LessonAttendance.query.filter(
-			LessonAttendance.lesson_id == lesson_id).filter(
-			LessonAttendance.user_id == user_id).first() is not None:
+                LessonAttendance.lesson_id == lesson_id).filter(
+                LessonAttendance.user_id == user_id).first() is not None:
 		return True
 	else:
 		return False
-	
-def register_student_attendance (user_id, lesson_id, disable_pusher = False):
-	attendance = LessonAttendance (user_id = user_id,
-								lesson_id = lesson_id,
-								timestamp = datetime.now())
+
+
+def register_student_attendance(user_id, lesson_id, disable_pusher=False):
+	attendance = LessonAttendance(user_id=user_id,
+                               lesson_id=lesson_id,
+                               timestamp=datetime.now())
 	db.session.add(attendance)
 	db.session.commit()
 	if disable_pusher is not False:
-		push_attendance_to_pusher( User.query.get(user_id).username)
-	
-def push_attendance_to_pusher (username):
+		push_attendance_to_pusher(User.query.get(user_id).username)
+
+
+def push_attendance_to_pusher(username):
 	pusher_client = pusher.Pusher(
-				app_id= current_app.config['PUSHER_APP_ID'],
-				key = current_app.config['PUSHER_KEY'],
-				secret=current_app.config['PUSHER_SECRET'],
-				cluster=current_app.config['PUSHER_CLUSTER'],
-				ssl=current_app.config['PUSHER_SSL']
+            app_id=current_app.config['PUSHER_APP_ID'],
+            key=current_app.config['PUSHER_KEY'],
+            secret=current_app.config['PUSHER_SECRET'],
+            cluster=current_app.config['PUSHER_CLUSTER'],
+            ssl=current_app.config['PUSHER_SSL']
 	)
 	data = {"username": username}
-	pusher_client.trigger('attendance', 'new-record', {'data': data })
-	
+	pusher_client.trigger('attendance', 'new-record', {'data': data})
 
-def new_absence_justification_from_form (form, lesson_id):
+
+def new_absence_justification_from_form(form, lesson_id):
 	file = form.absence_justification_file.data
 	random_filename = app.files.models.save_file(file)
 	original_filename = app.files.models.get_secure_filename(file.filename)
 
-	new_absence_justification = AbsenceJustificationUpload (
-					user_id = current_user.id,
-					original_filename = original_filename,
-					filename = random_filename,
-					justification = form.justification.data,
-					lesson_id = lesson_id,
-					timestamp = datetime.now())
+	new_absence_justification = AbsenceJustificationUpload(
+            user_id=current_user.id,
+            original_filename=original_filename,
+            filename=random_filename,
+            justification=form.justification.data,
+            lesson_id=lesson_id,
+            timestamp=datetime.now())
 
 	db.session.add(new_absence_justification)
 	db.session.commit()
-	
+
 	# Generate thumbnail
-	executor.submit(app.files.models.get_thumbnail, new_absence_justification.filename)
-	
+	executor.submit(app.files.models.get_thumbnail,
+	                new_absence_justification.filename)
+
 # Download an absence justification
-def download_absence_justification (absence_justification_id):
-	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+
+
+def download_absence_justification(absence_justification_id):
+	absence_justification = AbsenceJustificationUpload.query.get(
+		absence_justification_id)
 	return send_from_directory(filename=absence_justification.filename,
-								   directory=current_app.config['UPLOAD_FOLDER'],
-								   as_attachment = True,
-								   attachment_filename = absence_justification.original_filename)
+                            directory=current_app.config['UPLOAD_FOLDER'],
+                            as_attachment=True,
+                            attachment_filename=absence_justification.original_filename)
 
 # Delete absence justification
-def delete_absence_justification (absence_justification_id):
-	absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
+
+
+def delete_absence_justification(absence_justification_id):
+	absence_justification = AbsenceJustificationUpload.query.get(
+		absence_justification_id)
 	db.session.delete(absence_justification)
 	db.session.commit()
-	
+
 
 # Delete all user absence justification uploads
-def delete_all_user_absence_justification_uploads (user_id):
-	absence_justications = AbsenceJustificationUpload.query.filter_by(user_id=user_id).all()
+def delete_all_user_absence_justification_uploads(user_id):
+	absence_justications = AbsenceJustificationUpload.query.filter_by(
+		user_id=user_id).all()
 	if absence_justications is not None:
 		for justification in absence_justications:
 			db.session.delete(justification)
 	db.session.commit()
 
 # Method called when deleting a user
-def delete_all_user_attendance_records (user_id):
+
+
+def delete_all_user_attendance_records(user_id):
 	# Delete all the user attendance records
 	attendances = LessonAttendance.query.filter_by(user_id=user_id).all()
 	if attendances is not None:
@@ -249,23 +290,25 @@ def delete_all_user_attendance_records (user_id):
 	db.session.commit()
 
 
-def delete_class_from_id (turma_id):
-	for assignment in Assignment.query.filter(Assignment.target_turma_id==turma_id).all():
-		app.assignments.models.delete_assignment_from_id (assignment.id)
+def delete_class_from_id(turma_id):
+	for assignment in Assignment.query.filter(Assignment.target_turma_id == turma_id).all():
+		app.assignments.models.delete_assignment_from_id(assignment.id)
 
-	ClassLibraryFile.query.filter(ClassLibraryFile.turma_id==turma_id).delete()
-	
-	Enrollment.query.filter(Enrollment.turma_id==turma_id).delete()
-	
-	ClassManagement.query.filter (ClassManagement.turma_id == turma_id).delete()
+	ClassLibraryFile.query.filter(ClassLibraryFile.turma_id == turma_id).delete()
 
-	for lesson in Lesson.query.filter_by (turma_id = turma_id):
-		AttendanceCode.query.filter (AttendanceCode.lesson_id == lesson.id).delete ()
-		AbsenceJustificationUpload.query.filter (AbsenceJustificationUpload.lesson_id == lesson.id).delete ()
-		LessonAttendance.query.filter (LessonAttendance.lesson_id == lesson.id).delete ()
-		
+	Enrollment.query.filter(Enrollment.turma_id == turma_id).delete()
+
+	ClassManagement.query.filter(ClassManagement.turma_id == turma_id).delete()
+
+	for lesson in Lesson.query.filter_by(turma_id=turma_id):
+		AttendanceCode.query.filter(AttendanceCode.lesson_id == lesson.id).delete()
+		AbsenceJustificationUpload.query.filter(
+			AbsenceJustificationUpload.lesson_id == lesson.id).delete()
+		LessonAttendance.query.filter(
+			LessonAttendance.lesson_id == lesson.id).delete()
+
 		db.session.delete(lesson)
 
-	Turma.query.filter(Turma.id==turma_id).delete()
-	
+	Turma.query.filter(Turma.id == turma_id).delete()
+
 	db.session.commit()

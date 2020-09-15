@@ -329,16 +329,31 @@ def view_lesson_attendance(lesson_id):
 @bp.route("/absence/justifications/view/")
 @login_required
 def view_all_absence_justifications():
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		absence_justifications = db.session.query(AbsenceJustificationUpload, User, Lesson, Turma).join(
+	# Assemble all absence justifications with additional user, lesson and turma data
+	absence_justifications = db.session.query(AbsenceJustificationUpload, User, Lesson, Turma).join(
 				User, AbsenceJustificationUpload.user_id == User.id).join(
 				Lesson, AbsenceJustificationUpload.lesson_id == Lesson.id).join(
 			Turma, Lesson.turma_id == Turma.id).all()
-			
-		
 
+	# Return as-is if the user is a superintendant
+	if current_user.is_authenticated and current_user.is_superintendant:
 		return render_template('classes/view_all_absence_justifications.html',
 							  absence_justifications = absence_justifications)
+
+	# If user is a standard teacher
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		filtered_absence_justifications = []
+		
+		# For each justification
+		for absence_justification, user, lesson, turma in absence_justifications:
+			
+			# Check if the user who wrote it is in the teacher's class
+			if app.classes.models.check_if_student_is_in_teachers_class (user.id, current_user.id):
+				filtered_absence_justifications.append ((absence_justification, user, lesson, turma))
+
+		return render_template('classes/view_all_absence_justifications.html',
+							  absence_justifications = filtered_absence_justifications)
+
 	abort (403)
 	
 @bp.route("/attendance/code/", methods = ['GET', 'POST'])
