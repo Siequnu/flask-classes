@@ -71,18 +71,13 @@ def new_turma_from_form (form):
 
 		db.session.commit()
 
-def get_teacher_classes_from_teacher_id (teacher_id):
-	classes_management_entries = ClassManagement.query.filter_by (user_id = teacher_id).all()
-	
+def get_teacher_classes_from_teacher_id (teacher_id):	
 	# If the teacher isn't an owner of any class, then show all classes
 	# This should not be the case for any non-superintendant user
-	if classes_management_entries == []:
-		return Turma.query.all()
-	else:
-		turmas = []
-		for turma in classes_management_entries:
-			turmas.append (Turma.query.get (turma.turma_id))
-		return turmas
+	turmas = []
+	for turma in ClassManagement.query.filter_by (user_id = teacher_id).all():
+		turmas.append (Turma.query.get (turma.turma_id))
+	return turmas
 
 def get_class_enrollment_from_class_id (class_id):
 	return db.session.query(
