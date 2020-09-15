@@ -93,9 +93,9 @@
       </div>
       <div class="card-footer">
         <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info"><i
-              class="fa fa-toggle-on"></i> Open attendance </button></a>
+              class="fa fa-qrcode"></i> Take attendance </button></a>
         <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
-            class="btn btn-outline-secondary"><i class="fa fa-street-view"></i> View attendance </button></a>
+            class="btn btn-outline-secondary"><i class="fa fa-user-check"></i> View attendance </button></a>
         <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button class="btn btn-outline-warning"><i
               class="fa fa-trash-alt"></i> Delete lesson </button></a>
       </div>
