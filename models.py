@@ -173,7 +173,6 @@ def generate_random_student_groups_with_fixed_amount_of_students (turma_id, amou
 		teams.append (team)
 		team_number += 1
 
-	print (teams)
 	return teams
 
 
@@ -215,8 +214,7 @@ def generate_random_student_groups_with_fixed_amount_of_groups (turma_id, number
 		number_of_groups -= 1
 		teams.append (team)
 		team_number += 1
-
-	print (teams)
+	
 	return teams
 
 def check_if_student_is_in_teachers_class(student_id, teacher_id):
