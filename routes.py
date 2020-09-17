@@ -19,7 +19,6 @@ import flask_excel as excel
 import pusher
 
 ## API routes
-
 # Parse a Zoom URL code
 # Returns False if parsing fails
 @bp.route("/api/parse/", methods = ['POST'])
@@ -27,6 +26,27 @@ import pusher
 def parse_zoom_invitation ():
 	if app.models.is_admin (current_user.username):
 		return jsonify (app.classes.models.parse_zoom_invitation_helper (request.json['zoomInvitation']))
+	abort (403)
+
+# Return a list of users and classes
+@bp.route("/api/groups/", methods = ['POST'])
+@login_required
+def get_student_groups():
+	if app.models.is_admin (current_user.username):
+		
+		if request.json['generationType'] == 'students per group':
+			turma_id = request.json['turma']
+			amount_of_students_per_group = request.json['userChoice']
+			return jsonify (app.classes.models.generate_random_student_groups_with_fixed_amount_of_students (turma_id, amount_of_students_per_group))
+		
+		elif request.json['generationType'] == 'groups':
+			turma_id = request.json['turma']
+			amount_of_groups = request.json['userChoice']
+			return jsonify (app.classes.models.generate_random_student_groups_with_fixed_amount_of_groups (turma_id, amount_of_groups))
+		
+		else: return jsonify ({'error': 'Did not recognise the request type.'})
+	
+	# If not admin, abort
 	abort (403)
 
 
@@ -59,8 +79,7 @@ def edit_class(turma_id):
 			flash('Class edited successfully!', 'success')
 			return redirect(url_for('classes.class_admin'))
 		return render_template('classes/class_form.html', title='Edit class', form=form)
-	abort(403)
-	
+	abort(403)	
 	
 
 @bp.route("/delete/<turma_id>")
@@ -709,3 +728,11 @@ def random_student_generator ():
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turmas = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
 		return render_template('classes/random_student_generator.html', turmas = turmas)
+
+
+# Group generator
+@bp.route("/group/generate", methods=['GET'])
+def group_generator ():
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		turmas = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
+		return render_template('classes/group_generator.html', turmas = turmas)

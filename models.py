@@ -1,9 +1,10 @@
 from flask import flash, current_app, send_from_directory
 from flask_login import current_user
-from app import db, executor
+from app import db, executor, pinyin
 from app.models import Turma, Enrollment, User, LessonAttendance, Lesson, Assignment, ClassLibraryFile
 import app.assignments.models
 import pusher
+import random
 from datetime import datetime, date
 
 
@@ -34,8 +35,6 @@ class AbsenceJustificationUpload(db.Model):
 
 # Model used to store teacher-class relationships, whereby an admin can view all classes,
 # but can choose only to see certain classes in the interface, i.e., the assignments or class attendance pages
-
-
 class ClassManagement(db.Model):
 	__table_args__ = {'sqlite_autoincrement': True}
 	id = db.Column(db.Integer, primary_key=True)
@@ -109,7 +108,6 @@ def parse_zoom_invitation_helper (zoom_invitation):
 		return {'error': 'Could not process the data.'}
 	
 
-
 def get_teacher_classes_from_teacher_id(teacher_id):
 	# If the teacher isn't an owner of any class, then show all classes
 	# This should not be the case for any non-superintendant user
@@ -118,6 +116,108 @@ def get_teacher_classes_from_teacher_id(teacher_id):
 		turmas.append(Turma.query.get(turma.turma_id))
 	return turmas
 
+
+def get_teacher_classes_with_students_from_teacher_id (teacher_id):
+	turmas = []
+	for turma in ClassManagement.query.filter_by(user_id=teacher_id).all():
+		turma_dict = turma.__dict__
+		students = []
+		for enrollment in Enrollment.query.filter_by (turma_id = turma.id).all():
+			students.append (User.query.get(enrollment.user_id))
+		turmas.append (turma_dict)
+	return turmas
+
+
+# Function to split a class into groups, with a fixed amount of students per group
+def generate_random_student_groups_with_fixed_amount_of_students (turma_id, amount_of_students_per_group):
+	# Get all students signed up to this class
+	students_in_turma = db.session.query(Enrollment, User).join(
+		User, Enrollment.user_id == User.id).filter(Enrollment.turma_id == turma_id).all()
+
+	# Set initial variables
+	number_of_students = len(students_in_turma)
+	amount_of_students_per_group = int(amount_of_students_per_group)
+	
+	# Initialise an empty teams array
+	teams = []
+	team_number = 1 
+	
+	while number_of_students > 0:
+		
+		# Make a random sample of students, based on the size of the class
+		team = {
+			'team_number': team_number,
+			'members': []
+		}
+		
+		# Check to see if this is the last group, i.e., if students left in the pool is greater than desired sample size
+		# This should only happen on the last pass through
+		#¡# Consider distributing the remainder equally through existing groups, rather than in a potentially much smaller group
+		if (amount_of_students_per_group > len(students_in_turma)):
+			amount_of_students_per_group = len(students_in_turma)
+
+		# Main algo
+		for enrollment, user in random.sample(students_in_turma, amount_of_students_per_group):
+			# For each student, assemble a data object
+			student_info = {
+				'name': user.username,
+				'pinyin': pinyin.get_pinyin(user.username, ' ', tone_marks='marks')
+			}	
+			team['members'].append(student_info)
+
+			# Remove this student from the pool
+			students_in_turma.remove ((enrollment, user))
+			number_of_students -= 1
+		
+		# Append new group to groups array
+		teams.append (team)
+		team_number += 1
+
+	print (teams)
+	return teams
+
+
+# Function to divide a class into a certain number of groups
+def generate_random_student_groups_with_fixed_amount_of_groups (turma_id, number_of_groups):
+	# Get all students signed up to this class
+	students_in_turma = db.session.query(Enrollment, User).join(
+		User, Enrollment.user_id == User.id).filter(Enrollment.turma_id == turma_id).all()
+
+	# Set initial variables
+	number_of_students = len(students_in_turma)
+	number_of_groups = int(number_of_groups)
+	
+	# Initialise an empty teams array
+	teams = []
+	team_number = 1 
+	
+	while number_of_students > 0 and number_of_groups > 0:
+		
+		# Make a random sample of students, based on the size of the class
+		team = {
+			'team_number': team_number,
+			'members': []
+		}
+
+		for enrollment, user in random.sample(students_in_turma, int(number_of_students/number_of_groups)):
+			# For each student, assemble a data object
+			student_info = {
+				'name': user.username,
+				'pinyin': pinyin.get_pinyin(user.username, ' ', tone_marks='marks')
+			}	
+			team['members'].append(student_info)
+
+			# Remove this student from the pool
+			students_in_turma.remove ((enrollment, user))
+		
+		# Iterate variables and append new group to groups array
+		number_of_students -= int(number_of_students/number_of_groups)
+		number_of_groups -= 1
+		teams.append (team)
+		team_number += 1
+
+	print (teams)
+	return teams
 
 def check_if_student_is_in_teachers_class(student_id, teacher_id):
 	teacher_turmas = []
