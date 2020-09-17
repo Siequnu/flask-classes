@@ -13,7 +13,7 @@
   .groups-container .card {width: 220px; margin: 5px; display: inline-block;}
   .groups-container .card-title {text-align: center;}
   .groups-container ul {padding: 0; margin: 0;}
-  .groups-container ul li {margin: 3px; padding: 3px; list-style-type: none; border: 1px solid rgba(0,0,0,0.125); border-radius: 5px; text-align: center; font-size: 2em;}
+  .groups-container ul li {margin: 3px; padding: 3px; list-style-type: none; border: 1px solid rgba(0,0,0,0.125); border-radius: 5px; text-align: center; font-size: 2em; cursor: pointer}
 </style>
 
 <div class="container">
@@ -130,7 +130,7 @@
         $.each(data, function (indexInArray, team) {
           // Set the header and title of the card
           html = '<div class="card"><div class="card-body">';
-          html += '<h5 class="card-title">' + team.team_number + '</h5><ul>';
+          html += '<h5 class="card-title">' + team.team_number + '</h5><ul class="group-ul">';
           
           // Iterate through the team members and add each of them
           $.each(team.members, function (indexInArray, member) { 
@@ -141,6 +141,12 @@
           html += '</ul></div></div>';
           $('.groups-container').append(html);
         });
+
+        // Make the names sortable
+        $('.group-ul').sortable({
+          connectWith: '.group-ul'
+        });
+
       });
     });
 
@@ -194,8 +200,14 @@
     // On startup, set the input at 4, as a sensible default choice
     $('.user-choice').val(4);
 
-
   });
 </script>
+
+{% block templateScripts %}
+<!-- jQuery and jQuery UI picker-->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+{% endblock templateScripts %}
 
 {% endblock %}
