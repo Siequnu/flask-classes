@@ -239,6 +239,18 @@ def check_if_student_is_in_teachers_class(student_id, teacher_id):
 	return False
 
 
+def check_if_student_is_in_class (student_id, class_id):
+	student = User.query.get (student_id)
+	turma = Turma.query.get(class_id)
+
+	if student is None or turma is None: return False
+
+	enrollments = Enrollment.query.filter_by (user_id = student_id).filter_by(turma_id = class_id).all()
+	if len(enrollments) > 0:
+		return True
+	else:
+		return False
+
 def get_class_enrollment_from_class_id(class_id):
 	return db.session.query(
 		Enrollment, Turma, User).join(
@@ -346,17 +358,18 @@ def check_if_student_has_attendend_this_lesson(user_id, lesson_id):
 		return False
 
 
-def register_student_attendance(user_id, lesson_id, disable_pusher=False):
+def register_student_attendance(user_id, lesson_id, channel, disable_pusher=False):
 	attendance = LessonAttendance(user_id=user_id,
                                lesson_id=lesson_id,
                                timestamp=datetime.now())
+
 	db.session.add(attendance)
 	db.session.commit()
 	if disable_pusher is not False:
-		push_attendance_to_pusher(User.query.get(user_id).username)
+		push_attendance_to_pusher(User.query.get(user_id).username, channel)
 
 
-def push_attendance_to_pusher(username):
+def push_attendance_to_pusher(username, channel):
 	pusher_client = pusher.Pusher(
             app_id=current_app.config['PUSHER_APP_ID'],
             key=current_app.config['PUSHER_KEY'],
@@ -365,7 +378,7 @@ def push_attendance_to_pusher(username):
             ssl=current_app.config['PUSHER_SSL']
 	)
 	data = {"username": username}
-	pusher_client.trigger('attendance', 'new-record', {'data': data})
+	pusher_client.trigger(channel, 'new-record', {'data': data})
 
 
 def new_absence_justification_from_form(form, lesson_id):

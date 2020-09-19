@@ -79,10 +79,11 @@
     <h2>Lessons today</h2>
     <hr>
     {% for lesson, turma in lessons_today %}
-    <div class="card" style="width: 18rem;">
+    <div class="card m-3" style="width: 18rem;">
         <div class="card-body">
             <h5 class="card-title">{{turma.turma_label}}</h5>
             <p class="card-text">{{lesson.start_time.strftime('%H:%M')}} - {{lesson.end_time.strftime('%H:%M')}}</p>
+            {% if lesson.online_lesson_url %}
             <ul class="list-group list-group-flush">
                 <li class="list-group-item"><a href="{{lesson.online_lesson_url}}" target="_blank"><button
                             class="btn btn-lg btn-outline-success"><i class="fa fa-phone-volume"></i> Open class in Zoom
@@ -93,6 +94,7 @@
                         {{lesson.online_lesson_password}}</h6>
                 </li>
             </ul>
+            {% endif %}
         </div>
     </div>
     {% endfor %}

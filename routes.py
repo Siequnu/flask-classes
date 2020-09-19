@@ -416,8 +416,22 @@ def register_attendance(attendance_code):
 			ssl=current_app.config['PUSHER_SSL']
 		)
 		
+		# Get the attendance code object
 		attendance_code_object = AttendanceCode.query.filter(AttendanceCode.code == attendance_code).first()
-		#!# Check if user has already signed up for this lesson
+		
+		# Get the lesson object to know the turma_id for Pusher
+		lesson = Lesson.query.get(attendance_code_object.lesson_id)
+		
+		if attendance_code_object is None or lesson is None:
+			flash ('Could not find the lesson you want to register for.', 'error')
+			return redirect (url_for('main.index'))
+
+		# Check if user is part of this class, if not, reject their sign-up attempt
+		if app.classes.models.check_if_student_is_in_class (student_id = current_user.id, class_id = lesson.turma_id) is False:
+			flash ('You are trying to register for a class in which you are not enrolled. Please ask your teacher for help.', 'warning')
+			return redirect (url_for('main.index'))
+
+		# Check if user has already signed up for this lesson
 		if LessonAttendance.query.filter(
 				LessonAttendance.lesson_id == attendance_code_object.lesson_id).filter(
 				LessonAttendance.user_id == current_user.id).first() is not None:
@@ -432,7 +446,8 @@ def register_attendance(attendance_code):
 			db.session.commit()
 		
 			data = {"username": current_user.username}
-			pusher_client.trigger('attendance', 'new-record', {'data': data })
+			channel = str(lesson.turma_id)
+			pusher_client.trigger(channel, 'new-record', {'data': data })
 		
 	except:
 		flash ('Your code was invalid', 'info')
@@ -450,7 +465,7 @@ def batch_register_lesson_as_attended(lesson_id):
 		
 		for enrollment, turma, user in class_enrollment:
 			if app.classes.models.check_if_student_has_attendend_this_lesson(user.id, lesson_id) is not True:
-				app.classes.models.register_student_attendance(user.id, lesson_id, disable_pusher = True)
+				app.classes.models.register_student_attendance(user.id, lesson_id, channel= str(lesson.turma_id), disable_pusher = True)
 				
 		flash ('Marked entire class as attending', 'success')
 		
@@ -462,7 +477,11 @@ def batch_register_lesson_as_attended(lesson_id):
 def register_student_as_attending(user_id, lesson_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		user = User.query.get(user_id)
-		if User is None:
+
+		# Get the turma_id from the lesson_id, for the Pusher channel
+		lesson = Lesson.query.get(lesson_id)
+
+		if User is None or lesson is None:
 			abort (404)
 		else:
 			username = user.username
@@ -487,7 +506,8 @@ def register_student_as_attending(user_id, lesson_id):
 				db.session.commit()
 				username = User.query.get(user_id).username
 				data = {"username": username}
-				pusher_client.trigger('attendance', 'new-record', {'data': data })
+				channel = str(lesson.turma_id)
+				pusher_client.trigger(channel, 'new-record', {'data': data })
 			
 		except:
 			flash ('Could not register student as attending', 'warning')

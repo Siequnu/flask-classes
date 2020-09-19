@@ -1,7 +1,11 @@
 {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
 
 <!-- JS config -->
-<script type="text/javascript"   src="/static/js/config_{{config.APP_NAME}}.js"></script>
+<script type="text/javascript" src="/static/js/config_{{config.APP_NAME}}.js"></script>
+<script type="text/javascript">
+	// Set a property from the Flask app config
+	var turma_id = '{{turma.id}}';
+</script>
 
 <div class="container">
 	<br>
@@ -37,7 +41,7 @@
 						forceTLS: true
 					});
 
-					var channel = pusher.subscribe('attendance');
+					var channel = pusher.subscribe(turma_id);
 					channel.bind('my-event', function (data) {
 						alert(JSON.stringify(data));
 					});
@@ -46,10 +50,10 @@
 					channel.bind('new-record', (data) => {
 
 						$('#attendance').append(`
-            <tr>
-                <td><div> <h5>${data.data.username} </h5></div></td>
-            </tr>
-       `)
+							<tr>
+								<td><div><h5>${data.data.username} </h5></div></td>
+							</tr>
+       					`)
 					});</script>
 
 				<div class="attendee-container" style="overflow: auto; max-height: 80vh">
