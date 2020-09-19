@@ -26,7 +26,7 @@ class LessonForm(FlaskForm):
 	
 	
 class AbsenceJustificationUploadForm(FlaskForm):
-	absence_justification_file = FileField(label='Absence justification document:')
+	absence_justification_file = FileField(label='Absence justification document:', validators=[DataRequired()])
 	justification = TextAreaField('Justify your absence:', validators=[DataRequired()])
 	submit = SubmitField('Submit')
 
