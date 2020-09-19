@@ -55,6 +55,15 @@ class ClassManagement(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
+	
+def add_teacher_to_class (teacher_id, turma_id):
+	teacher = User.query.get (teacher_id)
+	turma = Turma.query.get (turma_id)
+	if teacher is None or turma is None:
+		return
+	teacher_ownership = ClassManagement (user_id = teacher_id, turma_id = turma_id)
+	teacher_ownership.add ()
+
 
 def new_turma_from_form(form):
 	new_turma = Turma(turma_number=form.turma_number.data, turma_label=form.turma_label.data,
