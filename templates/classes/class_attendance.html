@@ -92,11 +92,11 @@
         </div>
       </div>
       <div class="card-footer">
-        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info mb-3"><i
+        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info mb-1"><i
               class="fa fa-qrcode"></i> Take attendance </button></a>
         <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
-            class="btn btn-outline-secondary mb-3"><i class="fa fa-user-check"></i> View attendance </button></a>
-        <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button class="btn btn-outline-warning"><i
+            class="btn btn-outline-secondary mb-1"><i class="fa fa-user-check"></i> View attendance </button></a>
+        <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button class="btn btn-outline-warning mb-1"><i
               class="fa fa-trash-alt"></i> Delete lesson </button></a>
       </div>
       {% if lesson.online_lesson_code %}
