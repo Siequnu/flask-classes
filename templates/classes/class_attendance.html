@@ -32,7 +32,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-2">
-        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light">
+        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light mb-2">
             <i class="fa fa-chevron-left">
             </i> Back
           </button>
@@ -75,7 +75,7 @@
 
         <div class="container">
           <div class="row">
-            <div class="col-4 align-self-center">
+            <div class="col-md-4 col-6 align-self-center">
               <h3 class="display-5">
                 <span class="badge badge-secondary">
                   <i class="fa fa-user-check ">
@@ -83,7 +83,7 @@
                 </span>
               </h3>
             </div>
-            <div class="col-8">
+            <div class="col-md-8 col-6">
               <h5><i class="fa fa-calendar-day"></i> {{lesson.date}}</h5>
               <p><i class="fa fa-clock"></i>
                 {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</p>
@@ -92,10 +92,10 @@
         </div>
       </div>
       <div class="card-footer">
-        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info"><i
+        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info mb-3"><i
               class="fa fa-qrcode"></i> Take attendance </button></a>
         <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
-            class="btn btn-outline-secondary"><i class="fa fa-user-check"></i> View attendance </button></a>
+            class="btn btn-outline-secondary mb-3"><i class="fa fa-user-check"></i> View attendance </button></a>
         <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button class="btn btn-outline-warning"><i
               class="fa fa-trash-alt"></i> Delete lesson </button></a>
       </div>

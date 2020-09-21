@@ -23,7 +23,7 @@
   </div>
 
   <br>
-  <div class="row justify-content-left">
+  <div class="row justify-content-left mb-3">
     <div class="col-12 col-md-10 col-lg-8">
       <form class="card">
         <div class="card-body row no-gutters align-items-center">
@@ -69,13 +69,13 @@
                 <td>{{class.turma_year}}</td>
                 <td>
                   <a href="{{url_for('classes.class_attendance', class_id=class.id)}}" <button
-                    class="btn btn-info bln-block"><i class="fa fa-users"></i> Class attendance</button></a>
+                    class="btn btn-info bln-block m-1"><i class="fa fa-users"></i> Class attendance</button></a>
                   <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}" <button
-                    class="btn btn-primary bln-block"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
+                    class="btn btn-primary bln-block m-1"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
 
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                  <button class="btn btn-outline-secondary btn-block dropdown-toggle m-1" type="button" id="dropdownMenuButton"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-ellipsis-h">
+                    More <i class="fa fa-ellipsis-h">
                     </i>
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
