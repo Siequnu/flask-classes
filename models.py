@@ -259,6 +259,13 @@ def get_class_enrollment_from_class_id(class_id):
 		Enrollment.turma_id == class_id).all()
 
 
+def remove_all_enrollment_from_user (user_id):
+	# Remove all enrollments
+	for enrollment in Enrollment.query.filter_by (user_id = user_id):
+		db.session.delete(enrollment)
+		db.session.commit ()
+
+
 def get_attendance_status(lesson_id, user_id):
 	attendance = LessonAttendance.query.filter(
 		LessonAttendance.lesson_id == lesson_id).filter(

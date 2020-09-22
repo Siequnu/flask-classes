@@ -28,6 +28,27 @@ def parse_zoom_invitation ():
 		return jsonify (app.classes.models.parse_zoom_invitation_helper (request.json['zoomInvitation']))
 	abort (403)
 
+
+# Return a list of classes belonging to this user_id
+@bp.route("/api/classes/list/")
+@login_required
+def get_turmas_list_api ():
+	turmas = []
+	
+	if current_user.is_superintendant is True:
+		turma_choices = Turma.query.all ()
+	elif app.models.is_admin (current_user.username):
+		turma_choices = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
+	
+	for turma in turma_choices:
+		turmas.append ({
+			'id': turma.id,
+			'label': turma.turma_label
+		})
+
+	return jsonify (turmas)
+	abort (403)
+
 # Return a list of users and classes
 @bp.route("/api/groups/", methods = ['POST'])
 @login_required
