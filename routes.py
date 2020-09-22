@@ -39,6 +39,7 @@ def get_turmas_list_api ():
 		turma_choices = Turma.query.all ()
 	elif app.models.is_admin (current_user.username):
 		turma_choices = app.classes.models.get_teacher_classes_from_teacher_id (current_user.id)
+	else: abort (403)
 	
 	for turma in turma_choices:
 		turmas.append ({
@@ -47,7 +48,6 @@ def get_turmas_list_api ():
 		})
 
 	return jsonify (turmas)
-	abort (403)
 
 # Return a list of users and classes
 @bp.route("/api/groups/", methods = ['POST'])
