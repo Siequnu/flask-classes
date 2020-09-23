@@ -2,6 +2,64 @@
 
 
 {% block app_content %}
+<style>
+  @media only screen and (max-width: 800px) {
+
+    .no-more-tables {padding: 0;}
+
+    /* Force table to not be like tables anymore */
+    .no-more-tables table,
+    .no-more-tables thead,
+    .no-more-tables tbody,
+    .no-more-tables th,
+    .no-more-tables td,
+    .no-more-tables tr {
+      display: block;
+    }
+
+    /* Hide table headers (but not display: none;, for accessibility) */
+    .no-more-tables thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+    .no-more-tables tr {margin-bottom: 2px; border: 1px solid #eee; border-radius: 10px;}
+
+    .no-more-tables td {
+      /* Behave  like a "row" */
+      display: inline-block;
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      white-space: normal;
+      text-align: left;
+    }
+
+    .no-more-tables td.actions {display: block;}
+
+    .no-more-tables td:before {
+      /* Now like a table header */
+      position: absolute;
+      /* Top/left values mimic padding */
+      top: 6px;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    /*
+	Label the data
+	*/
+    #no-more-tables td:before {
+      content: attr(data-title);
+    }
+  }
+</style>
+
 <link rel="stylesheet" href="/static/css/form-control-borderless.css">
 <div class="container">
 
@@ -14,17 +72,17 @@
       <hr>
       <a href="{{url_for('classes.create_class')}}"><button class="btn btn-lg m-1 btn-outline-success"><i
             class="fa fa-plus-circle"></i> Create new class </button></a>
-      <a href="{{url_for('classes.view_all_absence_justifications')}}"><button class="btn btn-lg m-1 btn-outline-info"><i
-            class="fa fa-user-md"></i> View absence justifications </button></a>
+      <a href="{{url_for('classes.view_all_absence_justifications')}}"><button
+          class="btn btn-lg m-1 btn-outline-info"><i class="fa fa-user-md"></i> View absence justifications
+        </button></a>
       <a href="{{url_for('classes.view_open_attendance_codes')}}"><button class="btn btn-lg m-1 btn-outline-primary"><i
             class="fa fa-eye"></i> View open attendance codes </button></a>
     </div>
   </div>
 
-  <br>
-  <div class="row justify-content-left mb-3">
+  <div class="row justify-content-left">
     <div class="col-12 col-md-10 col-lg-8">
-      <form class="card">
+      <form class="card m-1">
         <div class="card-body row no-gutters align-items-center">
           <div class="col-auto">
             <i class="fas fa-search h4 text-body">
@@ -42,71 +100,64 @@
     <!--end of col-->
   </div>
 
-  <div class="container">
+  <div class="container no-more-tables m-1">
+    <div class="table">
+      <table summary="List of classes" class="table table-hover">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Label</th>
+            <th>Term</th>
+            <th>Year</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="searchableTable">
+          {% for class in classes_array %}
+          <tr>
+            <td>{{class.turma_number}}</td>
+            <td>{{class.turma_label}}</td>
+            <td>{{class.turma_term}}</td>
+            <td>{{class.turma_year}}</td>
+            <td class="actions">
+              <a href="{{url_for('classes.class_attendance', class_id=class.id)}}"><button
+                class="btn btn-info m-1"><i class="fa fa-user-check"></i> Attendance</button></a>
+              <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}"><button
+                class="btn btn-primary m-1"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
 
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="table">
-          <table summary="List of classes" class="table table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Number</th>
-                <th>Label</th>
-                <th>Term</th>
-                <th>Year</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="searchableTable">
-              {% for class in classes_array %}
-              <tr>
-                <td>{{class.id}}</td>
-                <td>{{class.turma_number}}</td>
-                <td>{{class.turma_label}}</td>
-                <td>{{class.turma_term}}</td>
-                <td>{{class.turma_year}}</td>
-                <td>
-                  <a href="{{url_for('classes.class_attendance', class_id=class.id)}}" <button
-                    class="btn btn-info bln-block m-1"><i class="fa fa-user-check"></i> Attendance</button></a>
-                  <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}" <button
-                    class="btn btn-primary bln-block m-1"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
+              <button class="btn btn-outline-secondary dropdown-toggle m-1" type="button"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                More <i class="fa fa-ellipsis-h">
+                </i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item generateRegistrationLink" href="#" data-class-id="{{class.id}}"
+                  data-class-label="{{class.turma_label}}" data-toggle="modal"
+                  data-target="#classRegistrationLinkModal"><i class="fa fa-sign-in-alt"></i> Get sign-up
+                  link</a>
+                <a class="dropdown-item" href="{{url_for('classes.manage_enrollment', class_id=class.id)}}"><i
+                    class="fa fa-user-tag"></i> Manage
+                  enrollment</a>
+                <a class="dropdown-item" href="{{url_for('classes.export_class_data', class_id=class.id)}}"><i
+                    class="fa fa-file-export"></i> Export class
+                  data</a>
+                <a class="dropdown-item" href="{{url_for('classes.edit_class', turma_id=class.id)}}"><i
+                    class="fa fa-edit"></i> Edit class</a>
+                <a class="dropdown-item" href="{{url_for('classes.delete_class', turma_id=class.id)}}"><i
+                    class="fa fa-trash-alt"></i> Delete</a>
+              </div>
 
-                  <button class="btn btn-outline-secondary btn-block dropdown-toggle m-1" type="button" id="dropdownMenuButton"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    More <i class="fa fa-ellipsis-h">
-                    </i>
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item generateRegistrationLink" href="#" data-class-id="{{class.id}}"
-                      data-class-label="{{class.turma_label}}" data-toggle="modal"
-                      data-target="#classRegistrationLinkModal"><i class="fa fa-sign-in-alt"></i> Get sign-up
-                      link</a>
-                    <a class="dropdown-item" href="{{url_for('classes.manage_enrollment', class_id=class.id)}}"><i
-                        class="fa fa-user-tag"></i> Manage
-                      enrollment</a>
-                    <a class="dropdown-item" href="{{url_for('classes.export_class_data', class_id=class.id)}}"><i
-                        class="fa fa-file-export"></i> Export class
-                      data</a>
-                    <a class="dropdown-item" href="{{url_for('classes.edit_class', turma_id=class.id)}}"><i
-                        class="fa fa-edit"></i> Edit class</a>
-                    <a class="dropdown-item" href="{{url_for('classes.delete_class', turma_id=class.id)}}"><i
-                        class="fa fa-trash-alt"></i> Delete</a>
-                  </div>
-
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <!--end of .table-responsive-->
-      </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+          </tr>
+        </tfoot>
+      </table>
     </div>
+    <!--end of .table-responsive-->
   </div>
 </div>
 
@@ -127,7 +178,8 @@
         <input style="width: 100%" class="url"
           placeholder="Javascript is disabled, and the link for this class can not be generated."></input>
         <br><br>
-        <a class="js-textareacopybtn" href="#"><button class="btn btn-outline-secondary copyButton"><i class="fa fa-copy"></i> Copy
+        <a class="js-textareacopybtn" href="#"><button class="btn btn-outline-secondary copyButton"><i
+              class="fa fa-copy"></i> Copy
             to clipboard </button></a>
       </div>
       <div class="modal-footer">
@@ -149,7 +201,7 @@
       $('.classSignUpLinkText').text('Students clicking this link will only be able to sign up for ' + $(this).data('class-label'));
 
       // Reset the state of the buttons
-      $('.copyButton').removeClass ('btn-success btn-error').addClass ('btn-outline-secondary');
+      $('.copyButton').removeClass('btn-success btn-error').addClass('btn-outline-secondary');
     });
 
     // Handler for the copy to clipboard button
@@ -164,10 +216,10 @@
         var successful = document.execCommand('copy');
         var msg = successful ? 'successful' : 'unsuccessful';
         $('.copyButton').html('<i class="fa fa-clipboard-check"></i> Copied to the clipboard');
-        $('.copyButton').removeClass ('btn-outline-secondary').addClass ('btn-success');
+        $('.copyButton').removeClass('btn-outline-secondary').addClass('btn-success');
       } catch (err) {
         $('.copyButton').html('<i class="fa fa-sad-tear"></i> Could not copy');
-        $('.copyButton').removeClass ('btn-outline-secondary').addClass ('btn-success');
+        $('.copyButton').removeClass('btn-outline-secondary').addClass('btn-success');
       }
     });
   }); 
