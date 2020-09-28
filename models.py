@@ -129,7 +129,7 @@ def get_teacher_classes_from_teacher_id(teacher_id):
 # Check if a teacher_id is registered as managing a turma
 # This will return only directly registered classes, i.e., a superintendant will NOT see all classes
 def check_if_turma_id_belongs_to_a_teacher(turma_id, teacher_id):
-	# Build list of classes managed by this teacher
+	# Build array of str(class IDs) managed by this teacher
 	turma_id_array = []
 	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
 		turma_id_array.append (str(class_management.turma_id))

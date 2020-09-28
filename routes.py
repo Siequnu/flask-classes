@@ -114,7 +114,7 @@ def delete_class(turma_id):
 		turma = Turma.query.get (turma_id)
 		
 		if turma is None:
-			flash ('Could not find a class with id ' + str(turma.id) + '.', 'error')
+			flash ('Could not find the class!', 'error')
 		
 		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
 			abort (403)
@@ -141,7 +141,7 @@ def class_admin():
 @bp.route("/management")
 @login_required
 def class_ownership_management():
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+	if current_user.is_authenticated and current_user.is_superintendant:
 		classes_array = Turma.query.all()
 		teachers = User.query.filter_by (is_admin = True).all()
 		for turma in classes_array:
@@ -162,7 +162,7 @@ def class_ownership_management():
 @bp.route("/management/add/<int:teacher_id>/to/<int:class_id>")
 @login_required
 def assign_teacher_to_class(teacher_id, class_id):
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+	if current_user.is_authenticated and current_user.is_superintendant:
 		teacher = User.query.get (teacher_id)
 		turma = Turma.query.get (class_id)
 		if teacher is None or turma is None:
@@ -178,7 +178,7 @@ def assign_teacher_to_class(teacher_id, class_id):
 @bp.route("/management/remove/<int:teacher_id>/from/<int:class_id>")
 @login_required
 def remove_teacher_from_class(teacher_id, class_id):
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+	if current_user.is_authenticated and current_user.is_superintendant:
 		teacher = User.query.get (teacher_id)
 		turma = Turma.query.get (class_id)
 		if teacher is None or turma is None:
@@ -234,6 +234,11 @@ def class_attendance(class_id):
 def create_lesson(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(class_id)
+
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+		
 		form = LessonForm(start_time = turma.lesson_start_time,
 						  end_time = turma.lesson_end_time,
 						  date = datetime.datetime.now())
@@ -318,12 +323,16 @@ def delete_lesson(lesson_id):
 @login_required
 def open_attendance(lesson_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
-		try:
-			lesson = Lesson.query.get(lesson_id)
-			turma = Turma.query.get(lesson.turma_id)
-		except:
-			flash ('Could not locate the lesson you wanted', 'error')
-			return redirect (url_for('classes.class_admin'))
+		
+		lesson = Lesson.query.get(lesson_id)
+		if lesson is None: abort (404)
+
+		turma = Turma.query.get(lesson.turma_id)
+		if turma is None: abort (404)
+		
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
 		
 		# Add new attendance code to the database
 		lines = open('eff_large_wordlist.txt').read().splitlines()
