@@ -569,7 +569,18 @@ def remove_attendance(attendance_id):
 def view_open_attendance_codes ():
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		try:
-			attendance_codes = db.session.query(AttendanceCode).all()
+			# Get all attendance codes for a superintendant
+			if current_user.is_superintendant == True:
+				attendance_codes = db.session.query(AttendanceCode).all()
+			
+			# Only get attendance codes for a teacher's classes
+			else:
+				attendance_codes = []
+				for attendance_code in db.session.query(AttendanceCode).all():
+					lesson = Lesson.query.get (attendance_code.lesson_id)
+					if app.classes.models.check_if_turma_id_belongs_to_a_teacher (lesson.turma_id, current_user.id): 
+						attendance_codes.append (attendance_code)
+			
 			return render_template('classes/view_open_attendance_codes.html', attendance_codes = attendance_codes)
 		except:
 			flash ('An error occured while viewing attendance codes.', 'error')
@@ -581,7 +592,19 @@ def view_open_attendance_codes ():
 @login_required
 def close_all_attendance_codes ():
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):		
-		attendance_codes = db.session.query(AttendanceCode).all()
+		
+		# Get all attendance codes for a superintendant
+		if current_user.is_superintendant == True:
+			attendance_codes = db.session.query(AttendanceCode).all()
+		
+		# Only get attendance codes for a teacher's classes
+		else:
+			attendance_codes = []
+			for attendance_code in db.session.query(AttendanceCode).all():
+				lesson = Lesson.query.get (attendance_code.lesson_id)
+				if app.classes.models.check_if_turma_id_belongs_to_a_teacher (lesson.turma_id, current_user.id): 
+					attendance_codes.append (attendance_code)
+
 		for code in attendance_codes:
 			db.session.delete(code)
 			db.session.commit()

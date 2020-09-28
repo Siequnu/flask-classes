@@ -121,18 +121,32 @@ def get_teacher_classes_from_teacher_id(teacher_id):
 	# If the teacher isn't an owner of any class, then show all classes
 	# This should not be the case for any non-superintendant user
 	turmas = []
-	for turma in ClassManagement.query.filter_by(user_id=teacher_id).all():
-		turmas.append(Turma.query.get(turma.turma_id))
+	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
+		turmas.append(Turma.query.get(class_management.turma_id))
 	return turmas
+
+
+# Check if a teacher_id is registered as managing a turma
+# This will return only directly registered classes, i.e., a superintendant will NOT see all classes
+def check_if_turma_id_belongs_to_a_teacher(turma_id, teacher_id):
+	# Build list of classes managed by this teacher
+	turma_id_array = []
+	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
+		turma_id_array.append (str(class_management.turma_id))
+		
+	# Check to see if the turma being tested is in the array of classes managed by this teacher
+	if str(turma_id) in turma_id_array: return True
+	else: return False
 
 
 def get_teacher_classes_with_students_from_teacher_id (teacher_id):
 	turmas = []
-	for turma in ClassManagement.query.filter_by(user_id=teacher_id).all():
+	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
 		turma_dict = turma.__dict__
 		students = []
-		for enrollment in Enrollment.query.filter_by (turma_id = turma.id).all():
+		for enrollment in Enrollment.query.filter_by (turma_id = class_management.turma_id).all():
 			students.append (User.query.get(enrollment.user_id))
+		turma_dict['students'] = students
 		turmas.append (turma_dict)
 	return turmas
 
