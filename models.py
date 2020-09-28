@@ -133,7 +133,7 @@ def check_if_turma_id_belongs_to_a_teacher(turma_id, teacher_id):
 	turma_id_array = []
 	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
 		turma_id_array.append (str(class_management.turma_id))
-		
+
 	# Check to see if the turma being tested is in the array of classes managed by this teacher
 	if str(turma_id) in turma_id_array: return True
 	else: return False
@@ -142,7 +142,7 @@ def check_if_turma_id_belongs_to_a_teacher(turma_id, teacher_id):
 def get_teacher_classes_with_students_from_teacher_id (teacher_id):
 	turmas = []
 	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
-		turma_dict = turma.__dict__
+		turma_dict = class_management.__dict__
 		students = []
 		for enrollment in Enrollment.query.filter_by (turma_id = class_management.turma_id).all():
 			students.append (User.query.get(enrollment.user_id))
