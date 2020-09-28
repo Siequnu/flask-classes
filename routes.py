@@ -706,6 +706,14 @@ def view_absence_justification (absence_justification_id):
 		user = User.query.get(absence_justification.user_id)
 		lesson = Lesson.query.get(absence_justification.lesson_id)
 		turma = Turma.query.get(lesson.turma_id)
+
+		# Check if the current student is viewing their own justification
+		if current_user.id == absence_justification.user_id:
+			pass
+		# Or else, if the current user_id manages the class this justification is for
+		# If not, abort
+		elif app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
 		
 		# Only admin or absence_justification uploader can view this justification
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
@@ -728,6 +736,13 @@ def download_absence_justification(absence_justification_id):
 	try:
 		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
 		user = User.query.get(absence_justification.user_id)
+		lesson = Lesson.query.get(absence_justification.lesson_id)
+		turma = Turma.query.get(lesson.turma_id)
+
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
 			return app.classes.models.download_absence_justification(absence_justification_id)
 		else:
@@ -744,6 +759,13 @@ def delete_absence_justification(absence_justification_id):
 		absence_justification = AbsenceJustificationUpload.query.get(absence_justification_id)
 		lesson_id = absence_justification.lesson_id
 		user = User.query.get(absence_justification.user_id)
+		lesson = Lesson.query.get(absence_justification.lesson_id)
+		turma = Turma.query.get(lesson.turma_id)
+
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+
 		if current_user.is_authenticated and app.models.is_admin(current_user.username) or current_user.id == user.id:
 			app.classes.models.delete_absence_justification(absence_justification_id)
 			flash('Deleted student absence justification.', 'success')
@@ -759,6 +781,10 @@ def delete_absence_justification(absence_justification_id):
 @login_required
 def export_class_data(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (class_id, current_user.id) is False:
+			abort (403)
+		
 		query_sets = db.session.query(User).join(
 			Enrollment, Enrollment.user_id == User.id).filter(
 			Enrollment.turma_id == class_id).order_by(User.student_number.asc()).all()
@@ -773,6 +799,10 @@ def export_class_data(class_id):
 @login_required
 def manage_enrollment(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (class_id, current_user.id) is False:
+			abort (403)
+		
 		class_enrollment = app.classes.models.get_class_enrollment_from_class_id(class_id)
 		return render_template('classes/class_enrollment.html', title='Class enrollment', class_enrollment = class_enrollment)
 	abort (403)
@@ -783,6 +813,11 @@ def manage_enrollment(class_id):
 def remove_enrollment(enrollment_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		class_id = Enrollment.query.get(enrollment_id).turma_id
+
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (class_id, current_user.id) is False:
+			abort (403)
+
 		Enrollment.query.filter(Enrollment.id==enrollment_id).delete()
 		db.session.commit()
 		flash('Student removed from class!', 'success')
@@ -796,6 +831,7 @@ def send_bulk_email_to_class(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(class_id)
 		
+		# Check if current user is registered as a class manager
 		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
 			abort (403)
 		
