@@ -90,6 +90,10 @@ def create_class():
 def edit_class(turma_id):	
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(turma_id)
+
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+
 		form = TurmaCreationForm(obj=turma)
 		del form.submit # Leaves the edit submit button 
 
@@ -108,9 +112,13 @@ def edit_class(turma_id):
 def delete_class(turma_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get (turma_id)
+		
 		if turma is None:
 			flash ('Could not find a class with id ' + str(turma.id) + '.', 'error')
 		
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+
 		# Delete all files and class management entries to do with this turma
 		app.classes.models.delete_class_from_id (turma_id)
 
@@ -188,6 +196,13 @@ def remove_teacher_from_class(teacher_id, class_id):
 def class_attendance(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(class_id)
+		
+		if turma is None:
+			abort (404)
+
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+		
 		lessons_array = []
 		lessons = Lesson.query.filter(Lesson.turma_id == class_id).all()
 
@@ -266,6 +281,12 @@ def create_lesson(class_id):
 @login_required
 def delete_lesson(lesson_id):	
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		lesson = Lesson.query.get (lesson_id)
+		if lesson is None: abort (403)
+
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (lesson.turma_id, current_user.id) is False:
+			abort (403)
+		
 		try:
 			# Delete all attendance for the lesson
 			for attendance in LessonAttendance.query.filter(LessonAttendance.lesson_id == lesson_id):
@@ -353,6 +374,9 @@ def view_lesson_attendance(lesson_id):
 		try:
 			lesson = Lesson.query.get(lesson_id)
 			turma = Turma.query.get(lesson.turma_id)
+
+			if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+				abort (403)
 			
 			attendance_stats = app.classes.models.get_lesson_attendance_stats (lesson_id)
 			
@@ -762,6 +786,10 @@ def remove_enrollment(enrollment_id):
 def send_bulk_email_to_class(class_id):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 		turma = Turma.query.get(class_id)
+		
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+		
 		users = app.classes.models.get_class_enrollment_from_class_id(class_id)
 		user_emails = ''
 		for enrollment, turma, user in users:
