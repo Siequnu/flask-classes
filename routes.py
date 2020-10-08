@@ -70,7 +70,36 @@ def get_student_groups():
 	# If not admin, abort
 	abort (403)
 
+# Create a new class
+@bp.route("/api/lesson/create", methods = ['POST'])
+@login_required
+def create_lesson_api ():
+	if app.models.is_admin (current_user.username):
+		try:
+			lesson_objects = request.json['lessonObjects']
+			print (lesson_objects)
+			for lesson_object in lesson_objects:
 
+				lesson = Lesson(
+					start_time = lesson_object['startTime'],
+					end_time = lesson_object['endTime'],
+					date = lesson_object['date'],
+					turma_id = lesson_object['turmaId']
+				)
+				db.session.add(lesson)
+				db.session.commit()
+
+			flash ('All lessons added successfully', 'success')
+			return jsonify ({'success': 'All lessons added successfully.'})
+		
+		except: 
+			flash ('An error occured while adding the lessons', 'error')
+			return jsonify ({'error': 'An error occured while adding the lessons.'})
+	abort (403)
+
+
+
+## GUI routes
 @bp.route("/create", methods=['GET', 'POST'])
 @login_required
 def create_class():
@@ -280,6 +309,18 @@ def create_lesson(class_id):
 			return redirect (url_for('classes.class_attendance', class_id = turma.id))
 		return render_template('classes/lesson_form.html', title='Create lesson', turma = turma, form = form)
 	abort (403)
+
+@bp.route("lesson/create/bulk/<turma_id>")
+@login_required
+def bulk_create_lessons (turma_id):
+	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+		turma = Turma.query.get(turma_id)
+
+		# Check if current user is registered as a class manager
+		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
+			abort (403)
+
+		return render_template('classes/bulk_create_lessons.html', title='Bulk create lessons', turma = turma)
 	
 
 @bp.route("/lesson/delete/<lesson_id>", methods=['GET', 'POST'])

@@ -55,6 +55,11 @@
             class="btn btn-lg btn-outline-success" data-toggle="modal" data-target="#createNewLessonModal"><i
               class="fa fa-plus-circle"></i> Create new lesson </button></a>
         <br><br>
+        <a href="{{url_for('classes.bulk_create_lessons', turma_id = turma.id)}}"><button class="btn btn-outline-info btn-lg mb-2">
+          <i class="fa fa-calendar-plus">
+          </i> Bulk create lessons
+        </button>
+      </a>
         <!--
         <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-outline-primary"><i
             class="fa fa-tasks"></i> View attendance </button></a>-->

@@ -348,8 +348,6 @@ def get_user_attendance_record_stats(user_id, percentage=False):
 		return record
 
 # Return a list of lessons that are today, but not yet finished
-
-
 def get_user_lessons_today_from_id(user_id):
 	lessons_today = []
 	for enrollment, user, turma in app.assignments.models.get_user_enrollment_from_id(user_id):

@@ -1,0 +1,552 @@
+{% extends "header.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/form.html' import render_field %}
+{% block app_content %}
+
+<style>
+  .selected-days-bucket {
+    width: 50%;
+    border: 1px solid grey;
+    border-radius: 7.5px;
+    min-height: 100px;
+  }
+
+  .choose-times {
+    display: none;
+  }
+
+  .choose-times-div {
+    display: none;
+  }
+
+  .choose-times-div .selected-days-bucket {
+    border: none;
+    min-height: 0;
+  }
+
+  .choose-times-div .selected-days-bucket i {
+    display: none;
+  }
+
+  .choose-times-div p {
+    display: inline-block;
+  }
+
+  .choose-times-div input.lesson-time {
+    display: inline-block;
+    width: 100px;
+  }
+
+  .choose-times-div .choose-dates {
+    display: none;
+  }
+
+  .choose-dates-div {
+    display: none;
+  }
+
+  .choose-dates-div .choose-classes {
+    display: none;
+  }
+
+  nav ol.breadcrumb li {
+    color: rgb(107, 108, 114)
+  }
+
+  nav ol.breadcrumb li.current {
+    color: rgb(6, 6, 10)
+  }
+
+  nav ol.breadcrumb li.done {
+    color: rgb(57, 126, 37)
+  }
+
+  nav ol.breadcrumb li i {
+    padding-top: 4px;
+  }
+
+  .confirm-classes-div {
+    display: none;
+  }
+</style>
+
+
+<div class="container">
+  <br>
+  <!-- Help modal -->
+  <div class="modal fade" id="bulkLessonCreationHelpModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h1 class="display-5"><i class="fa fa-chalkboard-teacher"></i> Bulk create lesson</h1>
+          <p class="lead">On this page you can create many lessons for a class, saving you time.</p>
+          <hr class="my-4">
+          <p>First, select which days of the week the classes are on. You could choose Tuesday, or Monday + Friday, for
+            example.</p>
+          <p>Then, select the starting date and end date. After you click next, you will be shown a list of all classes
+            between the dates you chose.</p>
+          <p>Check this list and de-select and classes that you don't need, i.e., those that might fall on a holiday.
+          </p>
+          <p>Finally, click create to add these lessons.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-2">
+        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light mb-2">
+            <i class="fa fa-chevron-left">
+            </i> Back
+          </button>
+        </a>
+      </div>
+      <div class="col-md-10">
+        <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-toggle="modal"
+          data-target="#bulkLessonCreationHelpModal">
+          <i class="fa fa-info"></i>
+        </button>
+        <h3><i class="fa fa-users"></i> Bulk create lessons - {{turma.turma_label}}</h3>
+        <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h4>
+      </div>
+    </div>
+    <hr>
+
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item current choose-days">Choose days</li>
+        <li class="breadcrumb-item lesson-times">Lesson times</li>
+        <li class="breadcrumb-item first-last-day">First and last day</li>
+        <li class="breadcrumb-item confirm-classes">Confirm classes</li>
+      </ol>
+    </nav>
+
+    <div class="select-days">
+      <h5>Please select on which days of the week your lesson is held:</h5>
+      <div class="days-of-week-bucket">
+        {% set daysOfTheWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+        {% for day in daysOfTheWeek %}
+        <button class="btn btn-outline-info m-2 day">{{day}} <i class="fa ml-2 fa-plus"></i> </button>
+        {% endfor %}
+      </div>
+      <div class="selected-days-bucket m-2">
+        <!-- Placeholder for days, will be placed here-->
+      </div>
+      <button class="btn btn-outline-primary btn-lg m-2 choose-times ">Next <i class="fa ml-2 fa-chevron-right"></i>
+      </button>
+    </div>
+
+
+    <div class="choose-times-div">
+      <h5>Class days:</h5>
+      <div class="selected-days-bucket m-2">
+        <!-- Placeholder for days, will be placed here-->
+      </div>
+      <h5>For each day, please select the lesson time:</h5>
+      <div class="lesson-time-cards pt-2">
+        <div class="lesson-time-row row">
+          <!-- Placeholder for lesson time cards-->
+        </div>
+      </div>
+      <button class="btn btn-outline-primary btn-lg m-2 choose-dates">Next <i class="fa ml-2 fa-chevron-right"></i>
+      </button>
+    </div>
+
+
+    <div class="choose-dates-div">
+      <h5>Please select the first and last date lessons will take place:</h5>
+      <p>First day of lessons:</p>
+      <input id="lessons_first_day" name="lessons_first_day" class="calendar-picker mb-2" required>
+      <p>Last day of lessons:</p>
+      <input id="lessons_last_day" name="lessons_last_day" class="calendar-picker" required>
+      <br>
+      <button class="btn btn-outline-primary btn-lg m-2 confirm-classes">Next <i class="fa ml-2 fa-chevron-right"></i>
+      </button>
+    </div>
+
+
+    <div class="confirm-classes-div" data-classid="{{turma.id}}">
+      <h5>Please uncheck any lessons that will not take place, i.e., those that occur during holidays.</h5>
+      <div class="final-date-list">
+        <!-- Placeholder for final date list -->
+      </div>
+      <br>
+      <button class="btn btn-outline-primary btn-lg m-2 create-lessons">Create lessons <i
+          class="fa ml-2 fa-chevron-right"></i>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  $(function () {
+
+    // Handle clicking a day to add it to the bucket
+    $('.day').on('click', function () {
+      var day = $(this).text();
+      var html = '<button class="btn btn-outline-success m-2 day">' + day +
+        '<i class="fa ml-2 fa-times"></i> </button>';
+      $('.select-days .selected-days-bucket').append(html);
+      $('.choose-times').show(200);
+    });
+
+
+    // Clicking a day in the bucket removes it
+    $('body').on('click', '.select-days .selected-days-bucket .day', function () {
+      $(this).remove();
+
+      // Hide the choose-times button if there are no days left
+      if ($('.select-days .selected-days-bucket .day').length < 1) {
+        $('.choose-times').hide();
+      }
+    });
+
+
+    // Handler for next, i.e., go to the choose-times
+    $('.choose-times').click(function () {
+
+      // Update the breadcrumb
+      $('li.choose-days').addClass('done').append('<i class="fa fa-check ml-2"></div>');
+      $('li.lesson-times').addClass('current');
+
+      // Add all the selected days to the bucket in the next page
+      $.each($('.select-days .selected-days-bucket button'), function (indexInArray, button) { 
+        $('.choose-times-div .selected-days-bucket').append (button);
+      });
+
+      // Hide the previous panel
+      $('.select-days').hide();
+
+      // Make the cards with the dates
+      $.each($('.choose-times-div .selected-days-bucket button'), function (indexInArray, button) {
+
+        // Build the HTML
+        var html = '<div class="col-12 col-md-6 col-lg-4 mb-3">';
+        html += '<div class="card dateAndTimeCard" data-day="' + $(button).text().trim() + '">';
+        html += '<div class="card-header"><i class="fa fa-calendar-day mr-2"></i>' + $(button).text().trim() +
+          '</div>';
+
+        // Start time
+        html += '<div class="row">';
+        html += '<div class="col-6"><p class="m-2">Start time</p></div>';
+        html += '<div class="col-6"><input class="m-2 lesson-time" name="lesson_' + indexInArray +
+          '_start_time" required="" type="text" value="" autocomplete="off"></div>';
+        html += '</div>'; // /row
+
+        // End time
+        html += '<div class="row">';
+        html += '<div class="col-6"><p class="m-2">End time</p></div>';
+        html += '<div class="col-6"><input class="m-2 lesson-time" name="lesson_' + indexInArray +
+          '_end_time" required="" type="text" value="" autocomplete="off"></div>';
+        html += '</div>'; // /row
+
+        html += '</div></div>';
+
+        // Append the HTML  
+        $('.choose-times-div .lesson-time-cards .lesson-time-row.row').append(html);
+      });
+
+      // Enable the timepicker to be used
+      $('.lesson-time').timepicker({
+        'timeFormat': 'H:i',
+        'minTime': '07:00am',
+        'step': 15
+      });
+
+      // Each time a time is selected - if all inputs have been filled out, next button can appear
+      $('body').on('click', '.ui-timepicker-list', function () {
+        var showButton = true;
+        $.each($('.lesson-time'), function (indexInArray, input) {
+          if ($(input).val() == '') {
+            showButton = false;
+          }
+        });
+
+        // If we have filled in all the inputs, show the next button
+        if (showButton) {
+          $('.choose-dates').show(200);
+        }
+      });
+
+      // Handler to see if we can progress and all dates are selected
+      var checkIfDatesAreThere = function () {
+        var showButton = true;
+        $.each($('.calendar-picker'), function (indexInArray, input) {
+          if ($(input).val() == '') {
+            showButton = false;
+          }
+        });
+
+        // If we have filled in all the inputs, show the next button
+        if (showButton) {
+          $('.choose-classes').show(200);
+        }
+      };
+
+
+      // Handler for the next button
+      $('.choose-dates').click(function () {
+        // Update the breadcrumb
+        $('li.lesson-times').addClass('done').append('<i class="fa fa-check ml-2"></div>');
+        $('li.first-last-day').addClass('current');
+
+        // Hide the times div
+        $('.choose-times-div').hide();
+
+        // Enable the datefield to use UI datepicker
+        $('#lessons_first_day').datepicker({
+          dateFormat: 'yy-mm-dd',
+          onSelect: checkIfDatesAreThere
+        });
+        $('#lessons_last_day').datepicker({
+          dateFormat: 'yy-mm-dd',
+          onSelect: checkIfDatesAreThere
+        });
+
+        $('.choose-dates-div').show();
+      });
+
+      // Show the div with all the appended content
+      $('.choose-times-div').show();
+    });
+
+
+    // Handler for checking if we can progress on choose-dates screen
+    $('body').on('click', '.ui-datepicker-calendar td a', function () {
+      var showButton = true;
+      $.each($('.calendar-picker'), function (indexInArray, input) {
+        if ($(input).val() == '') {
+          showButton = false;
+        }
+      });
+
+      // If we have filled in all the inputs, show the next button
+      if (showButton) {
+        $('.choose-classes').show(200);
+      }
+    });
+
+
+    // Handler for showing the confirm-classes screen
+    $('.confirm-classes').on('click', function () {
+      // Show the new divs
+      $('.choose-dates-div').hide();
+      $('.confirm-classes-div').show();
+
+      // Update the breadcrumb
+      $('li.first-last-day').addClass('done').append('<i class="fa fa-check ml-2"></div>');
+      $('li.confirm-classes').addClass('current');
+
+      // Calculate all the lessons that will happen between the first and last day
+      const RRule = rrule.RRule;
+      
+      // For each of the selected days, create the day code (Monday -> MO)
+      var daysOfTheWeek = [];
+      $.each($('.choose-times-div .selected-days-bucket .day'), function (indexInArray, day) { 
+        var dayOfTheWeek = $(day).text ().trim();
+        daysOfTheWeek.push(dayOfTheWeek);
+      });
+
+      var byweekday = []
+      $.each(daysOfTheWeek, function (indexInArray, day) { 
+        switch (day) {
+          case 'Monday':
+            byweekday.push (RRule.MO);
+            break;
+          case 'Tuesday':
+            byweekday.push (RRule.TU);
+            break;
+          case 'Wednesday':
+            byweekday.push (RRule.WE);
+            break;
+          case 'Thursday':
+            byweekday.push (RRule.TH);
+            break;
+          case 'Friday':
+            byweekday.push (RRule.FR);
+            break;
+          case 'Saturday':
+            byweekday.push (RRule.SA);
+            break;
+          case 'Sunday':
+            byweekday.push (RRule.SU);
+            break;
+          default:
+            break;
+        }
+      });
+
+      // Create an RRule string
+      var rruleString = "every week on " + daysOfTheWeek.toString() + 'until ' + $('#lessons_last_day').val ();
+      
+      // Convert it into an options array
+      options = {
+        freq: RRule.WEEKLY,
+        dtstart: new Date(Date.UTC(2020, 1, 1)),
+      }
+      options.byweekday = byweekday;
+     
+      // Make a new RRule with this option array
+      var rule = new RRule(options)
+
+      // Calculate the first and last days
+      var firstDay = ($('#lessons_first_day').val().split('-'));
+      var lastDay = ($('#lessons_last_day').val().split('-'));
+      
+      // Get the slice
+      var ruleSlice = rule.between(new Date(Date.UTC(Number(firstDay[0]), Number(firstDay[1]) - 1, Number(firstDay[2]) -1)), new Date(Date.UTC(Number(lastDay[0]), Number(lastDay[1] - 1), Number(lastDay[2]) + 1)));
+      
+      // Simplify the dates
+      var simplifiedDates = [];
+      $.each(ruleSlice, function (indexInArray, bigDateString) { 
+        simplifiedDates.push(bigDateString.toJSON());
+      });
+
+      // Create an array that maps the class times to dates
+      classDateAndTimeObject = [];
+      $.each($('.dateAndTimeCard'), function (indexInArray, card) { 
+        
+        var day = $(card).data('day');
+        var dayCode = getDayCodeFromDayString (day);
+        var lessonTimes = $(card).find ('.lesson-time');
+        
+        var dayObject = {
+          dayString: day, // i.e. Monday
+          dayCode: dayCode, // 1 (Sunday is 0, Saturday is 6)
+          lessonStartTime: $(lessonTimes[0]).val(),
+          lessonEndTime: $(lessonTimes[1]).val(),
+        };
+
+        classDateAndTimeObject.push (dayObject);
+      });
+
+      // Add the dates to the list
+      var dateListHtml = '';
+      var listItemId = '';
+      var simplifiedDate = '';
+      var dayCode = ''
+      
+      $.each(simplifiedDates, function (indexInArray, date) { 
+        // Each date is 2020-10-07T00:00:00.000Z
+        simplifiedDate = date.split ('T')[0];
+        listItemId = simplifiedDate + indexInArray;
+
+        // Get the time for each class, by searching through the classDateTimeObject array
+        dayCode = new Date(date).getUTCDay();
+
+        var matchingLessonDaysIndex = classDateAndTimeObject.findIndex(x => x.dayCode == dayCode);
+        var lessonStartTime = classDateAndTimeObject[matchingLessonDaysIndex].lessonStartTime;
+        var lessonEndTime = classDateAndTimeObject[matchingLessonDaysIndex].lessonEndTime;
+        var stringDayNameOfWeek = classDateAndTimeObject[matchingLessonDaysIndex].dayString;
+
+        dateListHtml += '<input class="lessonDateTime" type="checkbox" data-date="' + simplifiedDate + '" data-start="' + lessonStartTime + '" data-end="' + lessonEndTime + '" id="' + listItemId + '" name="' + listItemId + '" value="' + simplifiedDate + '" checked>';
+        dateListHtml += '<label for="' + listItemId + '">' + stringDayNameOfWeek + ', ' + simplifiedDate + ': ' + lessonStartTime + '-' + lessonEndTime + '</label><br>';
+      });
+
+      $('.final-date-list').append (dateListHtml);
+
+    });
+
+    var getDayCodeFromDayString = function (day) {
+      var dayCode = '';
+      switch (day) {
+        case 'Monday':
+          dayCode = 1;
+          break;
+        case 'Tuesday':
+          dayCode = 2;
+          break;
+        case 'Wednesday':
+          dayCode = 3;
+          break;
+        case 'Thursday':
+          dayCode = 4;
+          break;
+        case 'Friday':
+          dayCode = 5;
+          break;
+        case 'Saturday':
+          dayCode = 6;
+          break;
+        case 'Sunday':
+          dayCode = 0;
+          break;
+        default:
+          dayCode = false
+          break;
+      }
+
+      return dayCode;
+    };
+
+
+
+    // Handler for submit
+    $('.create-lessons').on('click', function () {
+      
+      var confirmedLessons = []
+      $.each($('.lessonDateTime:checkbox:checked'), function (indexInArray, lessonInput) { 
+         var lessonDate = $(lessonInput).data('date');
+         var lessonStartTime = $(lessonInput).data('start');
+         var lessonEndTime = $(lessonInput).data('end');
+         var turmaId = $('.confirm-classes-div').data('classid');
+
+         var lessonObject = {
+           date: lessonDate,
+           startTime: lessonStartTime,
+           endTime: lessonEndTime,
+           turmaId: turmaId
+         };
+
+         confirmedLessons.push(lessonObject);
+      });
+
+      var data = {lessonObjects: confirmedLessons};
+
+      console.log (confirmedLessons);
+      
+      const csrftoken = Cookies.get('_csrf_token');
+
+      fetch("{{url_for('classes.create_lesson_api')}}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(data => {
+        if (!data.hasOwnProperty('error')) {
+          window.location.href = '{{ url_for('classes.class_attendance', class_id = turma.id) }}';
+        } else {
+          // There was an error...
+          console.log (data);
+          window.location.href = '{{ url_for('classes.class_attendance', class_id = turma.id) }}';
+        }
+      });
+    });
+  });
+</script>
+
+
+
+{% endblock %}
+
+{% block templateScripts %}
+<!-- jQuery libraries -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+<!-- timePicker library -->
+<script type="text/javascript" src="/static/js/lib/jquery-timepicker/jquery.timepicker.min.js"></script>
+<link rel="stylesheet" href="/static/js/lib/jquery-timepicker/jquery.timepicker.min.css" />
+
+<!-- RRule-->
+<script src="/static/js/lib/rrule/rrule-tz.min.js"></script>
+{% endblock %}
