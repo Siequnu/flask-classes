@@ -11,6 +11,8 @@
     min-height: 100px;
   }
 
+  .day.hidden {display: none;}
+
   .choose-times {
     display: none;
   }
@@ -100,7 +102,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-2">
-        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light mb-2">
+        <a href="{{ url_for('classes.class_attendance', class_id = turma.id) }}"><button class="btn btn-light mb-2">
             <i class="fa fa-chevron-left">
             </i> Back
           </button>
@@ -131,7 +133,7 @@
       <div class="days-of-week-bucket">
         {% set daysOfTheWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
         {% for day in daysOfTheWeek %}
-        <button class="btn btn-outline-info m-2 day">{{day}} <i class="fa ml-2 fa-plus"></i> </button>
+        <button class="btn btn-outline-info m-2 day {{day}}">{{day}} <i class="fa ml-2 fa-plus"></i> </button>
         {% endfor %}
       </div>
       <div class="selected-days-bucket m-2">
@@ -189,10 +191,15 @@
 
     // Handle clicking a day to add it to the bucket
     $('.day').on('click', function () {
-      var day = $(this).text();
+      var day = $(this).text().trim();
+      
       var html = '<button class="btn btn-outline-success m-2 day">' + day +
         '<i class="fa ml-2 fa-times"></i> </button>';
       $('.select-days .selected-days-bucket').append(html);
+
+      // Hide it from the selection basket
+      $('.' + day).addClass ('hidden');
+      
       $('.choose-times').show(200);
     });
 
@@ -200,6 +207,10 @@
     // Clicking a day in the bucket removes it
     $('body').on('click', '.select-days .selected-days-bucket .day', function () {
       $(this).remove();
+
+      // Show it in the selection basket
+      var day = $(this).text().trim();
+      $('.' + day).removeClass ('hidden');
 
       // Hide the choose-times button if there are no days left
       if ($('.select-days .selected-days-bucket .day').length < 1) {
