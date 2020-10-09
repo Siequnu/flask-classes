@@ -462,28 +462,13 @@ def view_all_absence_justifications():
 			Turma, Lesson.turma_id == Turma.id).all()
 
 	# Return as-is if the user is a superintendant
-	if current_user.is_authenticated and current_user.is_superintendant:
-		if request.args.get('view') == 'normal':
-			filtered_absence_justifications = []
-
-			# For each justification
-			for absence_justification, user, lesson, turma in absence_justifications:
-
-				# Check if the user who wrote it is in the teacher's class
-				if app.classes.models.check_if_student_is_in_teachers_class(user.id, current_user.id):
-					filtered_absence_justifications.append(
-						(absence_justification, user, lesson, turma))
-
-			return render_template('classes/view_all_absence_justifications.html',
-							  absence_justifications = filtered_absence_justifications)
-		else:
-
+	if current_user.is_authenticated and current_user.is_superintendant and request.args.get('view') != 'normal':
 			return render_template(
 				'classes/view_all_absence_justifications.html',
 				absence_justifications=absence_justifications)
 
-	# If user is a standard teacher
-	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+	# If user is a standard teacher, or superintendant
+	elif current_user.is_authenticated and app.models.is_admin(current_user.username):
 		filtered_absence_justifications = []
 		
 		# For each justification
