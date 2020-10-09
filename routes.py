@@ -461,6 +461,19 @@ def view_all_absence_justifications():
 				Lesson, AbsenceJustificationUpload.lesson_id == Lesson.id).join(
 			Turma, Lesson.turma_id == Turma.id).all()
 
+	# Unpack absence justifications and add an indication if this has been approved
+	# There is no direct way to do this, but we can check to see if student has been registerd as attending
+	# However, there is no indication as to whether a justification has been ignored, or denied
+	# Possible later development can add an approved/denied flag
+	appended_absence_justifications = []
+	for absence_justification, user, lesson, turma in absence_justifications:
+		absence_justification_dict = absence_justification.__dict__
+		absence_justification_dict['student_is_marked_as_attending'] = app.classes.models.check_if_student_has_attendend_this_lesson (user.id, lesson.id)
+		appended_absence_justifications.append ((absence_justification_dict, user, lesson, turma))
+	
+	# Overwrite the original 
+	absence_justifications = appended_absence_justifications
+
 	# Return as-is if the user is a superintendant
 	if current_user.is_authenticated and current_user.is_superintendant and request.args.get('view') != 'normal':
 			return render_template(

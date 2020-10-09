@@ -56,6 +56,8 @@
           <th><i class="fa fa-at"></i></th>
           <th><i class="fa fa-university"></i></th>
           <th><i class="fa fa-clock"></i></th>
+          <th><i class="fa fa-calendar"></i></th>
+          <th><i class="fa fa-user-check"></i></th>
           <th><i class="fa fa-tools"></i></th>
         </tr>
       </thead>
@@ -66,11 +68,18 @@
           <td>{{user.username}}</td>
           <td>{{user.email}}</td>
           <td>{{turma.turma_label}}</td>
+          <td>{{lesson.date}}</td>
           <td>{{lesson.start_time}}</td>
+          <td>{% if absence_justification_upload.student_is_marked_as_attending == True %}
+                <button class="btn btn-sm btn-success"><i class="fa fa-thumbs-up"></i></button>
+              {% else %}
+              <button class="btn btn-sm btn-light"><i class="fa fa-thumbs-down"></i></button>
+              {% endif %}
+          </td>
           <td>
             <a href="{{url_for('classes.view_absence_justification', absence_justification_id = absence_justification_upload.id)}}"
-              class="btn btn-primary btn-sm btn-block" role="button"><i class="fa fa-user-md"></i> View
-              justification</a>
+              class="btn btn-outline-primary btn-sm btn-block" role="button"><i class="fa fa-user-md"></i> View
+              justification <i class="fa fa-chevron-right ml-2"></i></a>
           </td>
         </tr>
         {% endfor %}
