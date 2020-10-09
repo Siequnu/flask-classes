@@ -11,6 +11,20 @@
   </div>
 
 
+  <!-- Superintendant can switch between views-->
+  {% if current_user.is_superintendant %}
+  {% if request.args.get('view') == 'normal' %}
+  <a href="{{url_for('classes.view_all_absence_justifications')}}" class="btn btn-outline-info mb-3" role="button"><i
+      class="fa fa-user-md"></i> View
+    as superintendant</a>
+  {% else %}
+  <a href="{{url_for('classes.view_all_absence_justifications', view='normal')}}" class="btn btn-outline-info mb-3"
+    role="button"><i class="fa fa-user-md"></i> View
+    as normal teacher</a>
+  {% endif %}
+  {% endif %}
+
+
   <link rel="stylesheet" href="/static/css/form-control-borderless.css">
   <div class="row justify-content-left">
     <div class="col-12 col-md-10 col-lg-8">

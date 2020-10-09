@@ -452,7 +452,7 @@ def view_lesson_attendance(lesson_id):
 	abort (403)
 	
 	
-@bp.route("/absence/justifications/view/")
+@bp.route("/absence/justifications/view")
 @login_required
 def view_all_absence_justifications():
 	# Assemble all absence justifications with additional user, lesson and turma data
@@ -463,8 +463,24 @@ def view_all_absence_justifications():
 
 	# Return as-is if the user is a superintendant
 	if current_user.is_authenticated and current_user.is_superintendant:
-		return render_template('classes/view_all_absence_justifications.html',
-							  absence_justifications = absence_justifications)
+		if request.args.get('view') == 'normal':
+			filtered_absence_justifications = []
+
+			# For each justification
+			for absence_justification, user, lesson, turma in absence_justifications:
+
+				# Check if the user who wrote it is in the teacher's class
+				if app.classes.models.check_if_student_is_in_teachers_class(user.id, current_user.id):
+					filtered_absence_justifications.append(
+						(absence_justification, user, lesson, turma))
+
+			return render_template('classes/view_all_absence_justifications.html',
+							  absence_justifications = filtered_absence_justifications)
+		else:
+
+			return render_template(
+				'classes/view_all_absence_justifications.html',
+				absence_justifications=absence_justifications)
 
 	# If user is a standard teacher
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
