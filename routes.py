@@ -233,7 +233,7 @@ def class_attendance(class_id):
 			abort (403)
 		
 		lessons_array = []
-		lessons = Lesson.query.filter(Lesson.turma_id == class_id).all()
+		lessons = Lesson.query.filter(Lesson.turma_id == class_id).order_by(Lesson.date.asc()).all()
 
 		# New lesson form (embedded in modal)
 		form = LessonForm (
