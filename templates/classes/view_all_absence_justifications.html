@@ -69,7 +69,7 @@
           <td>{{user.email}}</td>
           <td>{{turma.turma_label}}</td>
           <td>{{lesson.date}}</td>
-          <td>{{lesson.start_time}}</td>
+          <td>{{lesson.start_time.strftime('%H:%M')}}</td>
           <td>{% if absence_justification_upload.student_is_marked_as_attending == True %}
                 <button class="btn btn-sm btn-success"><i class="fa fa-thumbs-up"></i></button>
               {% else %}
