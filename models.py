@@ -139,6 +139,12 @@ def check_if_turma_id_belongs_to_a_teacher(turma_id, teacher_id):
 	else: return False
 
 
+# Remove a teacher from all their classes
+# Used when deleting a teacher
+def remove_teacher_from_all_classes (user_id):
+	for management_relationship in ClassManagement.query.filter_by (user_id = user_id):
+		management_relationship.delete()
+
 def get_teacher_classes_with_students_from_teacher_id (teacher_id):
 	turmas = []
 	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
