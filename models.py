@@ -353,7 +353,7 @@ def get_user_attendance_record_stats(user_id, percentage=False):
 	else:
 		return record
 
-# Return a list of lessons that are today, but not yet finished
+# Return a list of lessons that are today
 def get_user_lessons_today_from_id(user_id):
 	lessons_today = []
 	for enrollment, user, turma in app.assignments.models.get_user_enrollment_from_id(user_id):
@@ -361,6 +361,16 @@ def get_user_lessons_today_from_id(user_id):
 			if lesson.date == date.today():
 				lessons_today.append((lesson, turma))
 
+	return lessons_today
+
+
+# Return a collection of teacher lessons that are today
+def get_teacher_lessons_today_from_teacher_id (teacher_id):
+	lessons_today = []
+	for turma in get_teacher_classes_from_teacher_id(teacher_id):
+		for lesson in Lesson.query.filter_by(turma_id=turma.id):
+			if lesson.date == date.today():
+				lessons_today.append((lesson, turma))
 	return lessons_today
 
 
