@@ -31,15 +31,15 @@
         <div class="col-md-3">
           <div class="input-group ml-3 mb-3 number-spinner">
             <div class="input-group-prepend">
-              <button class="btn btn-lg btn-info" data-dir="dwn" type="button"><i class="fas fa-minus"></i></button>
+              <button class="btn btn-info" data-dir="dwn" type="button"><i class="fas fa-minus"></i></button>
             </div>
             <input type="text" class="form-control text-center user-choice" value="1">
             <div class="input-group-append">
-              <button class="btn btn-lg btn-info" data-dir="up" type="button"><i class="fas fa-plus"></i></button>
+              <button class="btn btn-info" data-dir="up" type="button"><i class="fas fa-plus"></i></button>
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="btn-group mb-3 ml-3">
             <button type="button" class="btn btn-lg btn-outline-info dropdown-toggle generation-type-label"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">students per group
@@ -73,6 +73,7 @@
     </div>
 
   </div>
+</div>
 </div>
 
 <script>
@@ -202,6 +203,8 @@
   });
 </script>
 
+{% endblock %}
+
 {% block templateScripts %}
 <!-- jQuery and jQuery UI picker-->
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -209,4 +212,3 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 {% endblock templateScripts %}
 
-{% endblock %}
