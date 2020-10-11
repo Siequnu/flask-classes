@@ -103,15 +103,6 @@
   <div class="container no-more-tables m-1">
     <div class="table">
       <table summary="List of classes" class="table table-hover">
-        <thead>
-          <tr>
-            <th>Number</th>
-            <th>Label</th>
-            <th>Term</th>
-            <th>Year</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
         <tbody id="searchableTable">
           {% for class in classes_array %}
           <tr>
@@ -121,11 +112,11 @@
             <td>{{class.turma_year}}</td>
             <td class="actions">
               <a href="{{url_for('classes.class_attendance', class_id=class.id)}}"><button
-                class="btn btn-info m-1"><i class="fa fa-user-check"></i> Attendance</button></a>
+                class="btn btn-outline-info m-1"><i class="fa fa-user-check mr-2"></i>Lessons & attendance</button></a>
               <a href="{{url_for('classes.send_bulk_email_to_class', class_id=class.id)}}"><button
-                class="btn btn-primary m-1"><i class="fa fa-mail-bulk"></i> Bulk email</button></a>
+                class="btn btn-outline-primary m-1"><i class="fa fa-mail-bulk"></i> Email class</button></a>
 
-              <button class="btn btn-outline-secondary dropdown-toggle m-1" type="button"
+              <button class="btn btn-outline-primary dropdown-toggle m-1" type="button"
                 id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 More <i class="fa fa-ellipsis-h">
                 </i>
