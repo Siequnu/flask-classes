@@ -34,43 +34,36 @@
             </div>
         </div>
 
-        <div class="row justify-content-left">
-            <div class="col-12 col-md-10 col-lg-6">
+        <h3 class="mt-4">Sign-up for a class</h3>
+        <br>
+        <h5>To register attendance scan the QR code, or enter the word shown at the start of the class.</h5>
+        <br>
+        <form class="card">
+            <div class="card-body row no-gutters align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-key h4 text-body">
+                    </i>
+                </div>
+                <!--end of col-->
+                <div class="col">
+                    <input id="myInput" class="form-control form-control-lg form-control-borderless" name="attendance"
+                        type="attendance" placeholder="Enter class word here">
+                </div>
 
-                <br>
-                <h5>To register attendance scan the QR code, or enter the word shown at the start of the class.</h5>
-                <br>
-                <form class="card">
-                    <div class="card-body row no-gutters align-items-center">
-                        <div class="col-auto">
-                            <i class="fas fa-key h4 text-body">
-                            </i>
-                        </div>
-                        <!--end of col-->
-                        <div class="col">
-                            <input id="myInput" class="form-control form-control-lg form-control-borderless"
-                                name="attendance" type="attendance" placeholder="Enter class word here">
-                        </div>
+                <div class="col-auto">
+                    <button class="btn btn-lg btn-success" type="submit">I'm here! <i
+                            class="fa fa-chevron-right"></i></button>
+                </div>
+                <!--end of col-->
+            </div>
+        </form>
+        <!--end of col-->
 
-                        <div class="col-auto">
-                            <button class="btn btn-lg btn-success" type="submit">I'm here! <i
-                                    class="fa fa-chevron-right"></i></button>
-                        </div>
-                        <!--end of col-->
-                    </div>
-                </form>
-            </div>
-            <!--end of col-->
-
-            <div class="col-md-12 col-lg-1 col-sm-12 text-centered ">
-            </div>
-            <div class="col-md-12 col-lg-4 col-sm-12 text-centered ">
-                <br>
-                <p><a href="{{url_for('classes.view_attendance_record')}}"><button
-                        class="btn btn-lg btn-outline-primary"><i class="fa fa-user-check"></i> View your attendance
-                        record <i class="fa fa-chevron-right"></i></button></a></p>
-            </div>
-        </div>
+        <hr>
+        <h3 class="mt-4 mb-4">Your attendance record</h3>
+        <p><a href="{{url_for('classes.view_attendance_record')}}"><button class="btn btn-lg btn-outline-primary"><i
+                        class="fa fa-user-check"></i> View your attendance
+                    record <i class="fa fa-chevron-right"></i></button></a></p>
     </div>
 
     {% if lessons_today %}
