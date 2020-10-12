@@ -278,23 +278,27 @@ def create_lesson(class_id):
 			meeting_id = ''
 			meeting_passcode = ''
 			
-			if form.online_lesson_invitation.data:
-				split = form.online_lesson_invitation.data.split('Meeting ID: ')
-				split = split[1].split ('\n')
-				meeting_details = split[0].split(' Passcode: ')
-				meeting_id = meeting_details[0]
-				meeting_passcode = meeting_details[1]
+			try:
 
-				meeting_url = form.online_lesson_invitation.data.split('Join Zoom Meeting ')
-				meeting_url = meeting_url[1].split('  Meeting ID:')
-				meeting_url = meeting_url[0]
+				if form.online_lesson_invitation.data:
+					split = form.online_lesson_invitation.data.split('Meeting ID: ')
+					split = split[1].split ('\n')
+					meeting_details = split[0].split(' Passcode: ')
+					meeting_id = meeting_details[0]
+					meeting_passcode = meeting_details[1]
+
+					meeting_url = form.online_lesson_invitation.data.split('Join Zoom Meeting ')
+					meeting_url = meeting_url[1].split('  Meeting ID:')
+					meeting_url = meeting_url[0]
+				
+				# Overwrite auto-generated details if these were given
+				if form.online_lesson_code.data: 
+					meeting_id = form.online_lesson_code.data
 			
-			# Overwrite auto-generated details if these were given
-			if form.online_lesson_code.data: 
-				meeting_id = form.online_lesson_code.data
-		
-			if form.online_lesson_password.data: 
-				meeting_passcode = form.online_lesson_password.data
+				if form.online_lesson_password.data: 
+					meeting_passcode = form.online_lesson_password.data
+			except:
+				flash ('An error occured while parsing the Zoom invitation. The lesson has been created without a Zoom code.')
 
 			lesson = Lesson(start_time = form.start_time.data,
 							end_time = form.end_time.data,
