@@ -51,6 +51,8 @@
     display: none;
   }
 
+  .confirm-classes {display: none;}
+
   nav ol.breadcrumb li {
     color: rgb(107, 108, 114)
   }
@@ -70,6 +72,12 @@
   .confirm-classes-div {
     display: none;
   }
+
+  nav ol.breadcrumb li {font-size: 0.86rem}
+
+  .final-date-list label {padding-top: 10px; margin-left: 10px;}
+
+  h5 {padding: 10px 0 5px 0;}
 </style>
 
 
@@ -85,9 +93,10 @@
           <hr class="my-4">
           <p>First, select which days of the week the classes are on. You could choose Tuesday, or Monday + Friday, for
             example.</p>
-          <p>Then, select the starting date and end date. After you click next, you will be shown a list of all classes
+          <p>Next, select the starting and finishing times for your class..</p>
+            <p>Then, select the starting date and end date. After you click next, you will be shown a list of all classes
             between the dates you chose.</p>
-          <p>Check this list and de-select and classes that you don't need, i.e., those that might fall on a holiday.
+          <p>Check this list and de-select any classes that won't take place, i.e., those that might fall on a holiday.
           </p>
           <p>Finally, click create to add these lessons.</p>
         </div>
@@ -113,8 +122,8 @@
           data-target="#bulkLessonCreationHelpModal">
           <i class="fa fa-info"></i>
         </button>
-        <h3><i class="fa fa-users"></i> Bulk create lessons - {{turma.turma_label}}</h3>
-        <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h4>
+        <h3><i class="fa fa-chalkboard-teacher"></i> Bulk create lessons</h3>
+        <h4><i class="fa fa-calendar-alt"></i> {{turma.turma_label}}, {{turma.turma_term}} {{turma.turma_year}}</h4>
       </div>
     </div>
     <hr>
@@ -296,7 +305,7 @@
 
         // If we have filled in all the inputs, show the next button
         if (showButton) {
-          $('.choose-classes').show(200);
+          $('.confirm-classes').show(200);
         }
       };
 
@@ -325,22 +334,6 @@
 
       // Show the div with all the appended content
       $('.choose-times-div').show();
-    });
-
-
-    // Handler for checking if we can progress on choose-dates screen
-    $('body').on('click', '.ui-datepicker-calendar td a', function () {
-      var showButton = true;
-      $.each($('.calendar-picker'), function (indexInArray, input) {
-        if ($(input).val() == '') {
-          showButton = false;
-        }
-      });
-
-      // If we have filled in all the inputs, show the next button
-      if (showButton) {
-        $('.choose-classes').show(200);
-      }
     });
 
 
@@ -550,7 +543,6 @@
 
 {% block templateScripts %}
 <!-- jQuery libraries -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
