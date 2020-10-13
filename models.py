@@ -88,6 +88,9 @@ def new_turma_from_form(form):
 # Function to extract data from a Zoom invitation link
 def parse_zoom_invitation_helper (zoom_invitation):
 	
+	# Zoom adds extra \r as opposed to iCal event, remove it to unify parsing
+	zoom_invitation = zoom_invitation.replace('\r', '')
+
 	try:
 		# Meeting ID and passcode
 		split = zoom_invitation.split('Meeting ID: ')
@@ -97,7 +100,7 @@ def parse_zoom_invitation_helper (zoom_invitation):
 
 		# Meeting URL
 		meeting_url = zoom_invitation.split('Join Zoom Meeting\n')
-		meeting_url = meeting_url[1].split('\n\nMeeting ID:')
+		meeting_url = meeting_url[1].split('\nMeeting ID:')
 		meeting_url = meeting_url[0]
 
 		# Meeting date
