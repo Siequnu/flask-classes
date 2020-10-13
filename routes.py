@@ -77,7 +77,6 @@ def create_lesson_api ():
 	if app.models.is_admin (current_user.username):
 		try:
 			lesson_objects = request.json['lessonObjects']
-			print (lesson_objects)
 			for lesson_object in lesson_objects:
 
 				lesson = Lesson(
