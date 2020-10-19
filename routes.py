@@ -224,7 +224,7 @@ def remove_teacher_from_class(teacher_id, class_id):
 @bp.route("/attendance/<class_id>")
 @bp.route("/attendance/<class_id>/<view>")
 @login_required
-def class_attendance(class_id, view='all'):
+def class_attendance(class_id, view=False):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
 
 		turma = Turma.query.get(class_id)
@@ -252,7 +252,12 @@ def class_attendance(class_id, view='all'):
 			lesson_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson.id)
 			lessons_array.append(lesson_dict)
 
-		if view == 'future':
+		# If we have included a view variable in the URL, update the desired view and save it to session
+		if view: # i.e., navigating here with purpose to change the view, otherwise defaults to False
+			session['lessonsViewAs'] = view
+
+		# Filter the lessons, if filter is saved in session
+		if session.get('lessonsViewAs') == 'future':
 			future_lessons = []
 			for lesson in lessons_array:
 				if lesson['date'] >= datetime.date.today():
@@ -262,7 +267,7 @@ def class_attendance(class_id, view='all'):
 			
 		return render_template(
 			'classes/class_attendance.html', 
-			view = view,
+			view = session.get('lessonsViewAs'),
 			title='Class attendance', 
 			turma = turma, 
 			lessons = lessons_array,

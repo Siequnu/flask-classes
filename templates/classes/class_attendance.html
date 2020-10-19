@@ -70,7 +70,8 @@
         aria-haspopup="true" aria-expanded="false">
         <span class="sr-only">Toggle Dropdown</span>
         <i class="fa fa-filter"></i>
-        {{'View all lessons' if view == 'all' else 'View future lessons'}}
+        
+        {{'View future lessons' if view == 'future' else 'View all lessons'}}
       </button>
       <div class="dropdown-menu turma-dropdown">
         <a class="dropdown-item" href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'all')}}">View all lessons</a>
