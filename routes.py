@@ -219,10 +219,14 @@ def remove_teacher_from_class(teacher_id, class_id):
 	abort (403)
 
 	
+# Class to view all lessons and summarised attendance stats
+# Defaults to view all, accepts 'future' to only see future classes
 @bp.route("/attendance/<class_id>")
+@bp.route("/attendance/<class_id>/<view>")
 @login_required
-def class_attendance(class_id):
+def class_attendance(class_id, view='all'):
 	if current_user.is_authenticated and app.models.is_admin(current_user.username):
+
 		turma = Turma.query.get(class_id)
 		
 		if turma is None:
@@ -231,6 +235,7 @@ def class_attendance(class_id):
 		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
 			abort (403)
 		
+		# Get the lessons, ordered by date ascending
 		lessons_array = []
 		lessons = Lesson.query.filter(Lesson.turma_id == class_id).order_by(Lesson.date.asc()).all()
 
@@ -246,9 +251,18 @@ def class_attendance(class_id):
 			lesson_dict = lesson.__dict__
 			lesson_dict['attendance_stats'] = app.classes.models.get_lesson_attendance_stats (lesson.id)
 			lessons_array.append(lesson_dict)
+
+		if view == 'future':
+			future_lessons = []
+			for lesson in lessons_array:
+				if lesson['date'] >= datetime.date.today():
+					future_lessons.append (lesson)
+			lessons_array = future_lessons
+					
 			
 		return render_template(
 			'classes/class_attendance.html', 
+			view = view,
 			title='Class attendance', 
 			turma = turma, 
 			lessons = lessons_array,
