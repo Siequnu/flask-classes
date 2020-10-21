@@ -258,6 +258,9 @@ def class_attendance(class_id, view=False):
 
 		# Filter the lessons, if filter is saved in session
 		if session.get('lessonsViewAs') == 'future':
+			
+			flash ('You are currently viewing only future lessons', 'info')
+
 			future_lessons = []
 			for lesson in lessons_array:
 				if lesson['date'] >= datetime.date.today():
