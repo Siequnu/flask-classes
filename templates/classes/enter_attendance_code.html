@@ -1,96 +1,95 @@
 {% extends "header.html" %} {% from 'bootstrap/form.html' import render_form %} {% block app_content %}
 <link rel="stylesheet" href="/static/css/form-control-borderless.css">
 <div class="container">
-    <div class="container">
-        <div class="col-md-12">
-            <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-toggle="modal"
-                data-target="#helpModal">
-                <i class="fa fa-info"></i>
-            </button>
-            <h1><i class="fa fa-user-check"></i> Attendance
-            </h1>
-            <hr>
-        </div>
-
-
-        <!-- Help modal -->
-        <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <h1 class="display-5"><i class="fa fa-user-check"></i> Attendance</h1>
-                        <p class="lead">Easily track your attendance in classes.</p>
-                        <hr class="my-4">
-                        <p>At the start of each class, your teacher will display a QR code, which you can scan and open
-                            in Safari or your mobile browser.</p>
-                        <p>If you can not scan the QR code, you can enter the class-code instead.</p>
-                        <p>In this section, you can also view your attendance record. If you miss a class, you should
-                            upload your justification here.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h3 class="mt-4">Register for a class</h3>
-        <br>
-        <h5>Scan the QR code to register your attendance, or enter the word shown at the start of the class.</h5>
-        <br>
-        <form class="card">
-            <div class="card-body row no-gutters align-items-center">
-                <div class="col-auto">
-                    <i class="fas fa-terminal h4 text-body">
-                    </i>
-                </div>
-                <!--end of col-->
-                <div class="col">
-                    <input id="myInput" class="form-control form-control-lg form-control-borderless" name="attendance"
-                        type="attendance" placeholder="Enter class word here">
-                </div>
-
-                <div class="col-auto">
-                    <button class="btn btn-lg btn-success" type="submit">I'm here! <i
-                            class="fa fa-chevron-right"></i></button>
-                </div>
-                <!--end of col-->
-            </div>
-        </form>
-        <!--end of col-->
-
+    <div class="col-md-12">
+        <button type="button" class="btn btn-lg btn-outline-secondary float-right" data-toggle="modal"
+            data-target="#helpModal">
+            <i class="fa fa-info"></i>
+        </button>
+        <h1><i class="fa fa-user-check"></i> Attendance
+        </h1>
         <hr>
-        <h3 class="mt-4 mb-4">Your attendance record</h3>
-        <p><a href="{{url_for('classes.view_attendance_record')}}"><button class="btn btn-lg btn-outline-info"><i
-                        class="fa fa-user-check"></i> View your attendance
-                    record <i class="fa fa-chevron-right"></i></button></a></p>
     </div>
 
-    {% if lessons_today %}
-    <br>
-    <h2>Lessons today</h2>
-    <hr>
-    {% for lesson, turma in lessons_today %}
-    <div class="card m-3" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">{{turma.turma_label}}</h5>
-            <p class="card-text">{{lesson.start_time.strftime('%H:%M')}} - {{lesson.end_time.strftime('%H:%M')}}</p>
-            {% if lesson.online_lesson_url %}
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item"><a href="{{lesson.online_lesson_url}}" target="_blank"><button
-                            class="btn btn-lg btn-outline-success"><i class="fa fa-phone-volume"></i> Open class in Zoom
-                            <i class="fa fa-chevron-right"></i></button></a>
-                </li>
-                <li class="list-group-item">
-                    <h6 class="card-subtitle mt-2 text-muted text-center">{{lesson.online_lesson_code}} -
-                        {{lesson.online_lesson_password}}</h6>
-                </li>
-            </ul>
-            {% endif %}
+
+    <!-- Help modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h1 class="display-5"><i class="fa fa-user-check"></i> Attendance</h1>
+                    <p class="lead">Easily track your attendance in classes.</p>
+                    <hr class="my-4">
+                    <p>At the start of each class, your teacher will display a QR code, which you can scan and open
+                        in Safari or your mobile browser.</p>
+                    <p>If you can not scan the QR code, you can enter the class-code instead.</p>
+                    <p>In this section, you can also view your attendance record. If you miss a class, you should
+                        upload your justification here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
-    {% endfor %}
-    {% endif %}
+
+    <h3 class="mt-4">Register for a class</h3>
+    <br>
+    <h5>Scan the QR code to register your attendance, or enter the word shown at the start of the class.</h5>
+    <br>
+    <form class="card">
+        <div class="card-body row no-gutters align-items-center">
+            <div class="col-auto">
+                <i class="fas fa-terminal h4 text-body">
+                </i>
+            </div>
+            <!--end of col-->
+            <div class="col">
+                <input id="myInput" class="form-control form-control-lg form-control-borderless" name="attendance"
+                    type="attendance" placeholder="Enter class word here">
+            </div>
+
+            <div class="col-auto">
+                <button class="btn btn-success" type="submit">I'm here! <i
+                        class="fa fa-chevron-right"></i></button>
+            </div>
+            <!--end of col-->
+        </div>
+    </form>
+    <!--end of col-->
+
+    <hr>
+    <h3 class="mt-4 mb-4">Your attendance record</h3>
+    <p><a href="{{url_for('classes.view_attendance_record')}}"><button class="btn btn-outline-info"><i
+                    class="fa fa-user-check"></i> View your attendance
+                record <i class="fa fa-chevron-right"></i></button></a></p>
+</div>
+
+{% if lessons_today %}
+<br>
+<h2>Lessons today</h2>
+<hr>
+{% for lesson, turma in lessons_today %}
+<div class="card m-3" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">{{turma.turma_label}}</h5>
+        <p class="card-text">{{lesson.start_time.strftime('%H:%M')}} - {{lesson.end_time.strftime('%H:%M')}}</p>
+        {% if lesson.online_lesson_url %}
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="{{lesson.online_lesson_url}}" target="_blank"><button
+                        class="btn btn-lg btn-outline-success"><i class="fa fa-phone-volume"></i> Open class in Zoom
+                        <i class="fa fa-chevron-right"></i></button></a>
+            </li>
+            <li class="list-group-item">
+                <h6 class="card-subtitle mt-2 text-muted text-center">{{lesson.online_lesson_code}} -
+                    {{lesson.online_lesson_password}}</h6>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endif %}
 
 
 </div>

@@ -13,10 +13,10 @@
   {% for user, turma, lesson_attendance in attendance_record %}
   <div class="col-md-12">
     <div class="jumbotron">
-      <h2><i class="fa fa-university"></i> {{user.username}} - {{turma.turma_label}}</h2>
+      <h3><i class="fa fa-university"></i> {{user.username}} - {{turma.turma_label}}</h3>
       <hr class="my-4">
 
-      <div class="col-4">
+      <div class="col">
         <ul class="list-group">
           {% for lesson in lesson_attendance %}
           {% if lesson.attended %}
