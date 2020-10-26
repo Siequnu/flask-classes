@@ -14,6 +14,7 @@ class TurmaCreationForm(FlaskForm):
 	edit = SubmitField('Edit class')
 	submit = SubmitField('Create class')
 	
+	
 class LessonForm(FlaskForm):
 	start_time = StringField('Class start time', validators=[DataRequired()])
 	end_time = StringField('Class end time', validators=[DataRequired()])

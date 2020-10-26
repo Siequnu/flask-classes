@@ -148,6 +148,7 @@ def remove_teacher_from_all_classes (user_id):
 	for management_relationship in ClassManagement.query.filter_by (user_id = user_id):
 		management_relationship.delete()
 
+
 def get_teacher_classes_with_students_from_teacher_id (teacher_id):
 	turmas = []
 	for class_management in ClassManagement.query.filter_by(user_id=teacher_id).all():
@@ -279,7 +280,7 @@ def get_class_enrollment_from_class_id(class_id):
 		Enrollment, Turma, User).join(
 		Turma, Enrollment.turma_id == Turma.id).join(
 		User, Enrollment.user_id == User.id).filter(
-		Enrollment.turma_id == class_id).all()
+		Enrollment.turma_id == class_id).order_by(User.student_number.asc()).all()
 
 
 def remove_all_enrollment_from_user (user_id):
