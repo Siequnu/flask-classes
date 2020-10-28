@@ -29,113 +29,114 @@
 
 
   <div class="container">
-    <br>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-2">
-          <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light mb-2">
-              <i class="fa fa-chevron-left">
-              </i> Back
-            </button>
-          </a>
-        </div>
-        <div class="col-md-10">
+    <div class="row">
+      <div class="col-md-2">
+        <a href="{{url_for('classes.class_admin')}}"><button class="btn btn-light mb-2">
+            <i class="fa fa-chevron-left">
+            </i> Back
+          </button>
+        </a>
+      </div>
+      <div class="col-md-10">
 
-          <h2><i class="fa fa-chalkboard-teacher mr-3"></i>{{turma.turma_label}}</h2>
-          <h5 class="mt-3"><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h5>
+        <h2><i class="fa fa-chalkboard-teacher mr-3"></i>{{turma.turma_label}}</h2>
+        <h5 class="mt-3"><i class="fa fa-calendar-alt"></i> {{turma.turma_term}} {{turma.turma_year}}</h5>
 
-        </div>
       </div>
     </div>
   </div>
-  <div class="container pt-3">
-    <!--
+</div>
+<div class="container pt-3">
+  <!--
         <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" <button class="btn btn-lg btn-outline-primary"><i
             class="fa fa-tasks"></i> View attendance </button></a>-->
 
 
 
-    <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" class="createNewLessonModal"><button
-        class="btn btn-lg btn-outline-success" data-toggle="modal" data-target="#createNewLessonModal"><i
-          class="fa fa-plus-circle"></i> New lesson </button></a>
-    <a href="{{url_for('classes.bulk_create_lessons', turma_id = turma.id)}}"><button
-        class="btn btn-outline-secondary btn-lg">
-        <i class="fa fa-calendar-plus">
-        </i> Bulk create lessons
-      </button>
-    </a>
-    <div class="btn-group">
-      <button id="generate-dropdown" type="button"
-        class="btn btn-lg btn-outline-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
-        aria-haspopup="true" aria-expanded="false">
-        <span class="sr-only">Toggle Dropdown</span>
-        <i class="fa fa-filter"></i>
-        
-        {{'View future lessons' if view == 'future' else 'View all lessons'}}
-      </button>
-      <div class="dropdown-menu turma-dropdown">
-        <a class="dropdown-item" href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'all')}}">View all lessons</a>
-        <a class="dropdown-item" href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'future')}}">View future lessons</a>
+  <a href="{{url_for('classes.create_lesson', class_id = turma.id)}}" class="createNewLessonModal"><button
+      class="btn m-1 btn-outline-success" data-toggle="modal" data-target="#createNewLessonModal"><i
+        class="fa fa-plus-circle"></i> New lesson </button></a>
+  <a href="{{url_for('classes.bulk_create_lessons', turma_id = turma.id)}}"><button
+      class="btn btn-outline-secondary m-1">
+      <i class="fa fa-calendar-plus">
+      </i> Bulk create lessons
+    </button>
+  </a>
+  <div class="btn-group">
+    <button id="generate-dropdown" type="button"
+      class="btn m-1 btn-outline-info dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+      aria-haspopup="true" aria-expanded="false">
+      <span class="sr-only">Toggle Dropdown</span>
+      <i class="fa fa-filter"></i>
+
+      {{'View future lessons' if view == 'future' else 'View all lessons'}}
+    </button>
+    <div class="dropdown-menu turma-dropdown">
+      <a class="dropdown-item" href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'all')}}">View
+        all lessons</a>
+      <a class="dropdown-item" href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'future')}}">View
+        future lessons</a>
+    </div>
+  </div>
+  <hr>
+
+  {% if lessons|length == 0 %}
+  {% if view == 'all' %}
+  <p>You haven't added any lessons for this class yet. Create a new lesson to start tracking attendance.</p>
+  {% else %}
+  <p>There are no future lessons for this class.</p>
+  <a href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'all')}}"><button
+      class="btn btn-lg btn-outline-info"><i class="fa fa-eye mr-2"></i>View all lessons</button></a>
+  {% endif %}
+  {% endif %}
+
+  {% for lesson in lessons %}
+  <div class="card bg-light mb-3" style="max-width: 35rem;">
+    <div class="card-body">
+
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12 col-md-4 align-self-center">
+            <h3 class="display-5">
+              <span class="badge badge-secondary">
+                <i class="fa fa-user-check ">
+                </i> {{lesson.attendance_stats.attendance}} / {{lesson.attendance_stats.students_in_class}}
+              </span>
+            </h3>
+          </div>
+          <div class="col-sm-12 col-md-8">
+            <h5><i class="fa fa-calendar-day"></i> {{lesson.date}}</h5>
+            <p><i class="fa fa-clock"></i>
+              {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</p>
+          </div>
+        </div>
       </div>
     </div>
-    <hr>
+    <div class="card-footer">
+      <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info mb-1"><i
+            class="fa fa-qrcode"></i> Take attendance </button></a>
+      <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
+          class="btn btn-outline-secondary mb-1"><i class="fa fa-user-check"></i> View attendance </button></a>
+      <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button
+          class="btn btn-outline-warning mb-1"><i class="fa fa-trash-alt"></i> Delete lesson </button></a>
+    </div>
+    {% if lesson.online_lesson_code %}
+    <div class="card-footer">
+      <div class="row">
+        <div class="col-6 align-self-center">
+          <h6 class="card-subtitle mt-2 text-muted text-center">{{lesson.online_lesson_code}} -
+            {{lesson.online_lesson_password}}</h6>
+        </div>
+        <div class="col-6 align-self-right">
+          <a href="{{lesson.online_lesson_url}}" target="_blank"><button class="btn btn-outline-success"><i
+                class="fa fa-phone-volume"></i> Open class in Zoom
+              <i class="fa fa-chevron-right"></i></button></a>
+        </div>
+      </div>
+    </div>
 
-    {% if lessons|length == 0 %}
-    {% if view == 'all' %}
-      <p>You haven't added any lessons for this class yet. Create a new lesson to start tracking attendance.</p>
     {% else %}
-      <p>There are no future lessons for this class.</p>
-      <a href="{{url_for('classes.class_attendance', class_id = turma.id, view = 'all')}}"><button class="btn btn-lg btn-outline-info"><i class="fa fa-eye mr-2"></i>View all lessons</button></a>
-    {% endif %}
-    {% endif %}
-
-    {% for lesson in lessons %}
-    <div class="card bg-light mb-3" style="max-width: 35rem;">
-      <div class="card-body">
-
-        <div class="container">
-          <div class="row">
-            <div class="col-md-4 col-6 align-self-center">
-              <h3 class="display-5">
-                <span class="badge badge-secondary">
-                  <i class="fa fa-user-check ">
-                  </i> {{lesson.attendance_stats.attendance}} / {{lesson.attendance_stats.students_in_class}}
-                </span>
-              </h3>
-            </div>
-            <div class="col-md-8 col-6">
-              <h5><i class="fa fa-calendar-day"></i> {{lesson.date}}</h5>
-              <p><i class="fa fa-clock"></i>
-                {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <a href="{{url_for('classes.open_attendance', lesson_id = lesson.id)}}"><button class="btn btn-info mb-1"><i
-              class="fa fa-qrcode"></i> Take attendance </button></a>
-        <a href="{{url_for('classes.view_lesson_attendance', lesson_id = lesson.id)}}"><button
-            class="btn btn-outline-secondary mb-1"><i class="fa fa-user-check"></i> View attendance </button></a>
-        <a href="{{url_for('classes.delete_lesson', lesson_id = lesson.id)}}"><button
-            class="btn btn-outline-warning mb-1"><i class="fa fa-trash-alt"></i> Delete lesson </button></a>
-      </div>
-      {% if lesson.online_lesson_code %}
-      <div class="card-footer">
-        <div class="row">
-          <div class="col-6 align-self-center">
-            <h6 class="card-subtitle mt-2 text-muted text-center">{{lesson.online_lesson_code}} -
-              {{lesson.online_lesson_password}}</h6>
-          </div>
-          <div class="col-6 align-self-right">
-            <a href="{{lesson.online_lesson_url}}" target="_blank"><button class="btn btn-outline-success"><i
-                  class="fa fa-phone-volume"></i> Open class in Zoom
-                <i class="fa fa-chevron-right"></i></button></a>
-          </div>
-        </div>
-      </div>
-
-      {% else %}
-      <!-- Display "Add Zoom details" 
+    <!-- Display "Add Zoom details" 
         <div class="card-footer">
           <div class="row">
             <div class="col-6 align-self-left">
@@ -145,10 +146,9 @@
             </div>
           </div>
         </div>-->
-      {% endif %}
-    </div>
-    {% endfor %}
+    {% endif %}
   </div>
+  {% endfor %}
 </div>
 
 
