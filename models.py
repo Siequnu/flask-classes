@@ -283,6 +283,31 @@ def get_class_enrollment_from_class_id(class_id):
 		Enrollment.turma_id == class_id).order_by(User.student_number.asc()).all()
 
 
+# Get all students who are not enrolled in a class
+def get_students_not_enrolled_in_class (class_id):
+	# Only search for classes the teacher currently supervises
+	teacher_turmas = get_teacher_classes_from_teacher_id (current_user.id)
+
+	students_not_in_class = []
+
+	for turma in teacher_turmas:
+		students_not_in_class.append (db.session.query(
+		Enrollment, Turma, User).join(
+			Turma, Enrollment.turma_id == Turma.id).join(
+			User, Enrollment.user_id == User.id).filter(
+			Enrollment.turma_id != class_id).filter(
+			Enrollment.turma_id == turma.id).order_by( # filter by turma_id
+				User.student_number.asc()).all())
+
+	# Flatten all the class lists into one
+	flattened_array = []
+	for array in students_not_in_class:
+		for student in array:
+			flattened_array.append(student)
+
+	return flattened_array
+
+
 def remove_all_enrollment_from_user (user_id):
 	# Remove all enrollments
 	for enrollment in Enrollment.query.filter_by (user_id = user_id):

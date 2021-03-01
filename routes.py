@@ -96,6 +96,36 @@ def create_lesson_api ():
 			return jsonify ({'error': 'An error occured while adding the lessons.'})
 	abort (403)
 
+# API route to add an enrollment
+@bp.route("/api/enrollment/add/<student_id>/<turma_id>", methods = ['POST'])
+@login_required
+def add_enrollment_api(student_id, turma_id):
+	if app.models.is_admin (current_user.username):
+		try:
+			# Check if the student exists and exit if not
+			student = User.query.get(student_id)
+			print (student)
+			if student is None: 
+				return jsonify ({'error': 'Could not locate this student in the database.'})
+
+			# Check if the class exists and exit if not
+			turma = Turma.query.get(turma_id)
+			print (turma)
+			if turma is None: 
+				return jsonify ({'error': 'Could not locate this class in the database.'})
+
+			# If the current user isn't managing this class, exit.
+			# Superintendants will not pass this step, they are counted as a normal teacher
+			if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma_id, current_user.id) is False:
+				abort (403)
+
+			# Enroll the student in the classs
+			app.assignments.models.enroll_user_in_class(student_id, turma_id)
+			return jsonify ({'success': 'Student added successfully.'})
+		except: 
+			return jsonify ({'error': 'An error occured while enrolling the student.'})
+
+	abort (403)
 
 
 ## GUI routes
@@ -882,9 +912,19 @@ def manage_enrollment(class_id):
 		# Check if current user is registered as a class manager
 		if app.classes.models.check_if_turma_id_belongs_to_a_teacher (class_id, current_user.id) is False:
 			abort (403)
-		
+
+		# Get the current enrollment
 		class_enrollment = app.classes.models.get_class_enrollment_from_class_id(class_id)
-		return render_template('classes/class_enrollment.html', title='Class enrollment', class_enrollment = class_enrollment)
+
+		# Get the current non-enrolled list
+		not_enrolled_in_class = app.classes.models.get_students_not_enrolled_in_class(class_id)
+		
+		return render_template(
+			'classes/class_enrollment.html', 
+			title='Class enrollment', 
+			turma_id = class_id,
+			class_enrollment = class_enrollment,
+			not_enrolled_in_class = not_enrolled_in_class)
 	abort (403)
 	
 
