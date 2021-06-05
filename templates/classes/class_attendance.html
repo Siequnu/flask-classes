@@ -3,6 +3,26 @@
 {% from 'bootstrap/form.html' import render_field %}
 {% block app_content %}
 
+<style>
+  .lesson-open-icon {
+    border-radius: 50px; 
+    margin: 10px;
+    position: absolute; top: 0; right: 0;
+  }
+
+  .lesson-open-icon.open i {
+    font-size: 30px;
+    color: green;
+  }
+
+  .lesson-open-icon.closed i {
+    font-size: 30px;
+    color: grey;
+  }
+</style>
+
+<link rel="stylesheet" type="text/css" href="/static/js/lib/tipped-4.7.0/css/tipped.css" media="screen"/>
+<script src="/static/js/lib/tipped-4.7.0/js/tipped.min.js"></script>
 
 <div class="container">
   <!-- Help modal -->
@@ -109,6 +129,12 @@
             <p><i class="fa fa-clock"></i>
               {{lesson.start_time.strftime('%H:%M')}}-{{lesson.end_time.strftime('%H:%M')}}</p>
           </div>
+          {% if lesson.attendance_stats.attendance_open %}
+            <div class="lesson-open-icon open"><i class="fa fa-user-circle"></i></div>
+          {% else %}
+            <div class="lesson-open-icon closed"><i class="fa fa-user-circle"></i></div>
+          {% endif %}
+          
         </div>
       </div>
     </div>
@@ -272,7 +298,13 @@
   });
 </script>
 
-
+<!-- Tooltips-->
+<script>
+  $(function () {
+    Tipped.create('.lesson-open-icon.open', 'Attendance is currently open');
+    Tipped.create('.lesson-open-icon.closed', 'Attendance is currently closed');
+  })
+</script>
 
 
 {% endblock %}
