@@ -430,16 +430,24 @@ def open_attendance(lesson_id):
         if app.classes.models.check_if_turma_id_belongs_to_a_teacher (turma.id, current_user.id) is False:
             abort (403)
 
-        # Add new attendance code to the database
-        lines = open('eff_large_wordlist.txt').read().splitlines()
-        code = random.choice(lines)
-        code = code[6:]
+        # Check to see if we have a prior open code, to avoid refreshing the code
+        prior_code = AttendanceCode.query.filter_by(lesson_id=lesson_id).first()
+        if (prior_code):
+            attendance_code_object = prior_code
+            code = prior_code.code
+
+        else:
+            print ('creating new code')
+            # Add new attendance code to the database
+            lines = open('eff_large_wordlist.txt').read().splitlines()
+            code = random.choice(lines)
+            code = code[6:]
+
+            attendance_code_object = AttendanceCode (code = code, lesson_id = lesson_id)
+            db.session.add(attendance_code_object)
+            db.session.commit()
 
         url = url_for ('classes.register_attendance', attendance_code = code, _external = True)
-        attendance_code_object = AttendanceCode (code = code, lesson_id = lesson_id)
-        db.session.add(attendance_code_object)
-        db.session.commit()
-
         return render_template('classes/lesson_attendance_qr_code.html',
                                title='Class attendance',
                                turma = turma,
